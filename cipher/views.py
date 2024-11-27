@@ -20,6 +20,11 @@ def caesar_cipher(request):
     return render(request, 'page.html', {'data': encrypted_text, 'key': key, 'text': text, 'steps': steps, 'mode': mode, 'cipher': cipher})
 
 
+# VIGENERE CIPHER
+def vigenere_cipher(request):
+    return render(request, 'page.html')
+
+
 # PLAYFAIR CIPHER
 def playfair_cipher(request):
     key = request.GET.get('key', 0)
@@ -28,3 +33,18 @@ def playfair_cipher(request):
     cipher = 'playfair'
     encrypted_text, steps = perform_playfair_cipher(key, text, mode)
     return render(request, 'page.html', {'data': encrypted_text, 'key': key, 'text': text, 'steps': steps, 'mode': mode, 'cipher': cipher})
+
+
+# SINGLE COLUMNAR CIPHER
+def singlecolumnar_cipher(request):
+    return render(request, 'page.html')
+
+
+# DOUBLE COLUMNAR CIPHER
+def doublecolumnar_cipher(request):
+    return render(request, 'page.html')
+
+
+# ADVANCE ENCRYPTION STANDARD
+def aes_cipher(request):
+    return render(request, 'page.html')

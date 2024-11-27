@@ -133,6 +133,11 @@
             keyInput.style.display = 'block';
             keyInput2.style.display = 'none';
 
+            document.getElementById('key-input').value = '';
+            document.getElementById('key-input-2').value = '';
+            document.getElementById('text-input').value = '';
+            document.getElementById('result-output').textContent = '';
+
             switch(cipher) {
                 case 'caesar':
                     keyInput.placeholder = 'Enter shift value (1-25)';

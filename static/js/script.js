@@ -8,10 +8,6 @@ function resetFields() {
     // Clear the solution modal steps container
     document.getElementById('modal-steps-container').innerHTML = '';
 
-    // Reset the active cipher selection
-    currentCipher = 'caesar';
-    selectCipher('caesar'); // Resets to Caesar cipher (default)
-
     // Ensure the modal is closed
     document.getElementById('solution-modal').style.display = 'none';
 }
