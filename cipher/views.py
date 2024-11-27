@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .utils import perform_caesarcipher_encryp_decrypt, perform_playfair_cipher
+from .utils import perform_caesarcipher_encryp_decrypt, perform_playfair_cipher, double_columnar_cipher
 
 # Create your views here.
 def landing(request):
@@ -42,7 +42,14 @@ def singlecolumnar_cipher(request):
 
 # DOUBLE COLUMNAR CIPHER
 def doublecolumnar_cipher(request):
-    return render(request, 'page.html')
+    text = request.GET.get('text', '')
+    key = request.GET.get('key', '')
+    key2 = request.GET.get('key2', '')
+    mode = request.GET.get('mode', '')
+    cipher = 'double-columnar'
+    steps = ""
+    encrypted_text = double_columnar_cipher(text, key, key2, mode)
+    return render(request, 'page.html', {'data': encrypted_text, 'key': key, 'key2': key2, 'text': text, 'steps': steps, 'mode': mode, 'cipher': cipher})
 
 
 # ADVANCE ENCRYPTION STANDARD

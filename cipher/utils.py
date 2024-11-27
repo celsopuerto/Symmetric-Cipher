@@ -1,5 +1,6 @@
-# CAESAR CIPHER
+import math
 from django.utils.html import escape
+# CAESAR CIPHER
 
 def perform_caesarcipher_encryp_decrypt(text, key, mode):
     encrypted_text = ""
@@ -50,6 +51,9 @@ def perform_caesarcipher_encryp_decrypt(text, key, mode):
                 steps_html += f"<p><b>Step {i + 1}:</b> Non-alphabetic character, no change</p>"
 
         return decrypted_text, steps_html
+
+
+#VIGENERE CIPHER
 
 
 #PLAYFAIR CIPHER
@@ -149,3 +153,60 @@ def perform_playfair_cipher(key, text, mode):
             solution_steps_html += f"<p>Error encrypting/decrypting digraph {escape(digraph)}: {e}</p>"
 
     return result, solution_steps_html
+
+
+#SINGLE COLUMNAR
+
+
+
+#DOUBLE COLUMNAR
+def columnar_transposition_encrypt(plaintext, key):
+    # Sort key to determine column order
+    key_order = sorted(list(key))
+    col_order = [key.index(char) for char in key_order]
+
+    # Fill grid with text
+    columns = [''] * len(key)
+    for i, char in enumerate(plaintext):
+        columns[i % len(key)] += char
+
+    # Rearrange columns based on the sorted key
+    ciphertext = ''.join(columns[i] for i in col_order)
+    return ciphertext
+
+
+def columnar_transposition_decrypt(ciphertext, key):
+    # Calculate grid dimensions
+    cols = len(key)
+    rows = math.ceil(len(ciphertext) / cols)
+    key_order = sorted(list(key))
+
+    # Determine column lengths
+    col_lengths = [rows] * cols
+    for i in range((rows * cols) - len(ciphertext)):
+        col_lengths[key_order.index(key[i])] -= 1
+
+    # Split ciphertext into columns based on lengths
+    start = 0
+    columns = {}
+    for i, col_len in enumerate(col_lengths):
+        columns[key_order[i]] = list(ciphertext[start:start + col_len])
+        start += col_len
+
+    # Reconstruct plaintext row-wise
+    plaintext = ''
+    for i in range(rows):
+        for k in key:
+            if columns[k]:
+                plaintext += columns[k].pop(0)
+
+    return plaintext
+
+
+def double_columnar_cipher(text, key1, key2, mode):
+    if mode == 'encrypt':
+        intermediate = columnar_transposition_encrypt(text, key1)
+        return columnar_transposition_encrypt(intermediate, key2)
+    elif mode == 'decrypt':
+        intermediate = columnar_transposition_decrypt(text, key2)
+        return columnar_transposition_decrypt(intermediate, key1)
