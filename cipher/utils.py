@@ -73,45 +73,42 @@ def generate_matrix(key):
     # Return the matrix as a list of lists (5x5 grid)
     return [matrix[i:i + 5] for i in range(0, 25, 5)]
 
+
 def prepare_text(text):
     text = text.upper().replace("J", "I")
     text = ''.join([char for char in text if char.isalpha()])
 
-    # If the length is odd, add 'X' to the end
     if len(text) % 2 != 0:
-        text += "X"  # Add an 'X' to make the length even
+        text += "X"
 
-    # Prepare digraphs
     digraphs = []
     i = 0
     while i < len(text):
         if i + 1 < len(text) and text[i] == text[i + 1]:
-            # Insert 'X' between duplicate letters (e.g., "LL" becomes "LX")
             digraphs.append(text[i] + 'X')
-            i += 1  # Only increment once to avoid skipping the next character
+            i += 1
         else:
-            digraphs.append(text[i:i + 2])  # Add the digraph
-            i += 2  # Increment by 2 as we're processing a pair
+            digraphs.append(text[i:i + 2])
+            i += 2
 
     return digraphs
 
+
 def find_position(matrix, char):
-    # Check the position of a character in the 5x5 matrix
     for i, row in enumerate(matrix):
         if char in row:
             return i, row.index(char)
     raise ValueError(f"Character {char} not found in matrix")
+
 
 def playfair_encrypt_decrypt(matrix, digraph, mode='encrypt'):
     try:
         row1, col1 = find_position(matrix, digraph[0])
         row2, col2 = find_position(matrix, digraph[1])
     except ValueError as e:
-        print(f"Error in finding position of characters {digraph}: {e}")
         raise e
 
     if row1 == row2:
-        # Same row: shift columns
         if mode == 'encrypt':
             col1 = (col1 + 1) % 5
             col2 = (col2 + 1) % 5
@@ -119,7 +116,6 @@ def playfair_encrypt_decrypt(matrix, digraph, mode='encrypt'):
             col1 = (col1 - 1) % 5
             col2 = (col2 - 1) % 5
     elif col1 == col2:
-        # Same column: shift rows
         if mode == 'encrypt':
             row1 = (row1 + 1) % 5
             row2 = (row2 + 1) % 5
@@ -127,26 +123,29 @@ def playfair_encrypt_decrypt(matrix, digraph, mode='encrypt'):
             row1 = (row1 - 1) % 5
             row2 = (row2 - 1) % 5
     else:
-        # Rectangle: swap columns
         col1, col2 = col2, col1
 
     return matrix[row1][col1] + matrix[row2][col2]
 
 def perform_playfair_cipher(key, text, mode):
-    # Generate the matrix from the key
     matrix = generate_matrix(key)
-    print(f"Matrix: {matrix}")  # Debug: Check the matrix
-
-    # Prepare the text and split it into digraphs
     digraphs = prepare_text(text)
-    print(f"Prepared Digraphs: {digraphs}")  # Debug: Check the digraphs
-    
     result = ''
-    for digraph in digraphs:
+    solution_steps_html = f"<h3>Playfair Cipher Solution for '{text}'</h3>"
+
+    # Display the matrix in a column-wise format
+    solution_steps_html += f"<p><b>Matrix:</b></p><pre>"
+    for row in matrix:
+        solution_steps_html += " ".join(row) + "\n"  # Stack each row on top of each other
+    solution_steps_html += "</pre>"
+
+    for i, digraph in enumerate(digraphs):
+        solution_steps_html += f"<p><b>Step {i + 1}:</b> Encrypting/Decrypting Digraph: '{escape(digraph)}'</p>"
+
         try:
             result += playfair_encrypt_decrypt(matrix, digraph, mode)
+            solution_steps_html += f"<p>&nbsp;&nbsp;Resulting Pair: '{escape(result[-2:])}'</p>"
         except Exception as e:
-            print(f"Error encrypting/decrypting digraph {digraph}: {e}")
-            raise e
+            solution_steps_html += f"<p>Error encrypting/decrypting digraph {escape(digraph)}: {e}</p>"
 
-    return result
+    return result, solution_steps_html

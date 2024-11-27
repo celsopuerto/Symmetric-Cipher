@@ -182,7 +182,7 @@
                     location.href = `{% url 'cipher:caesar_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
                     break;
                 case 'vigenere':
-                    location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
+                    resultOutput.textContent = 'Vigenere Cipher Encryption Result';
                     break;
                 case 'playfair':
                     location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
@@ -219,7 +219,7 @@
                     location.href = `{% url 'cipher:caesar_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
                 case 'vigenere':
-                    location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
+                resultOutput.textContent = 'Vigenere Cipher Decryption Result';
                     break;
                 case 'playfair':
                     location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
