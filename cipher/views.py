@@ -3,6 +3,9 @@ from django.http import HttpResponse
 from .utils import perform_caesar_cipher_encryption, perform_caesar_cipher_decryption
 
 # Create your views here.
+def landing(request):
+    return render(request, 'landing.html')
+
 def cipher(request):
     return render(request, 'page.html')
 
