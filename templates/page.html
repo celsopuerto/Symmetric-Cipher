@@ -113,7 +113,11 @@
         let currentCipher;
 
         {% if cipher %}
-            currentCipher = "{{ cipher }}"; 
+            currentCipher = "{{ cipher|safe }}"; 
+            {% if cipher == 'double-columnar' %}
+                const keyInput2 = document.getElementById('key-input-2');
+                keyInput2.style.display = 'block';
+            {% endif %}
         {% else %}
             currentCipher = 'caesar'; 
         {% endif %}
@@ -196,7 +200,7 @@
                     resultOutput.textContent = 'Single Columnar Cipher Encryption Result';
                     break;
                 case 'double-columnar':
-                    resultOutput.textContent = `Double Columnar Cipher Encryption Result (Keys: ${key}, ${key2})`;
+                    location.href = `{% url 'cipher:double-columnar_cipher' %}?key=${key}&key2=${key2}&text=${text}&mode=encrypt`;
                     break;
                 case 'aes':
                     resultOutput.textContent = 'AES Cipher Encryption Result';
@@ -224,7 +228,7 @@
                     location.href = `{% url 'cipher:caesar_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
                 case 'vigenere':
-                resultOutput.textContent = 'Vigenere Cipher Decryption Result';
+                    resultOutput.textContent = 'Vigenere Cipher Decryption Result';
                     break;
                 case 'playfair':
                     location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
@@ -233,7 +237,7 @@
                     resultOutput.textContent = 'Single Columnar Cipher Decryption Result';
                     break;
                 case 'double-columnar':
-                    resultOutput.textContent = `Double Columnar Cipher Decryption Result (Keys: ${key}, ${key2})`;
+                    location.href = `{% url 'cipher:double-columnar_cipher' %}?key=${key}&key2=${key2}&text=${text}&mode=decrypt`;
                     break;
                 case 'aes':
                     resultOutput.textContent = 'AES Cipher Decryption Result';
