@@ -1,9 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Team</title>
+    <link rel="icon" type="image/png" href="{% static 'img/icon.png' %}">
     <style>
         /* CSS Variables for Light and Dark Modes */
         :root {
@@ -15,6 +18,7 @@
             --button-bg-light: #007bff;
             --button-hover-light: #0056b3;
             --toggle-bg-light: #e0e0e0;
+            --toggle-bg-light2: #c9c9c9;
             --toggle-knob-light: #ffffff;
 
             /* Dark Mode Colors */
@@ -146,7 +150,7 @@
             right: 20px;
             width: 50px;
             height: 24px;
-            background-color: var(--toggle-bg);
+            background-color: var(--toggle-bg-light2);
             border-radius: 12px;
             cursor: pointer;
             display: flex;
@@ -191,6 +195,25 @@
                 font-size: 0.9rem;
             }
         }
+
+        @keyframes fadeInZoom {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Apply animation to the leader name */
+        .leadername {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: inline-block;
+            animation: fadeInZoom 1s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -201,7 +224,7 @@
 
     <div class="container">
         <h1>Meet Our Team</h1>
-        <p class="leader"><strong>Leader:</strong> Celso M. Puerto Jr.</p>
+        <p class="leader"><strong>Leader:</strong> <span class="leadername">Celso M. Puerto Jr.<span></p>
         <ul class="members" id="members-list">
             <!-- Member names will be populated here -->
         </ul>
