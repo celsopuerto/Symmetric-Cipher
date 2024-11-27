@@ -13,6 +13,8 @@
         🌓
     </button>
 
+    <button onclick="resetFields()" class="reset-button">Reset</button>
+
     <div class="cipher-container">
         <div class="cipher-header">
             <h1>Symmetric Cipher Tool</h1>
@@ -29,10 +31,10 @@
 
         <div id="cipher-inputs" class="cipher-input">
             <div id="keys-container" class="keys-container">
-                <input type="text" id="key-input" placeholder="Enter encryption key">
-                <input type="text" id="key-input-2" placeholder="Enter second key for Double Columnar Cipher" style="display: none;">
+                <input type="text" id="key-input" placeholder="Enter encryption key" {% if key %}value="{{ key }}"{% endif %}>
+                <input type="text" id="key-input-2" placeholder="Enter second key for Double Columnar Cipher" style="display: none;" {% if key %}value="{{ key2 }}"{% endif %}>
             </div>
-            <textarea id="text-input" placeholder="Enter text to encrypt/decrypt"></textarea>
+            <textarea id="text-input" placeholder="Enter text to encrypt/decrypt">{% if key %}{{ text }}{% endif %}</textarea>
         </div>
 
         <div class="cipher-actions">
@@ -42,10 +44,12 @@
 
         <div class="cipher-output">
             <h3>Result:</h3>
-            <p id="result-output"></p>
+            <p id="result-output">{%if encrypted_text %}
+                {{ encrypted_text }}
+                {% endif %}
+            </p>
         </div>
     </div>
-
     <script>
         // Dark/Light Mode Toggle
         const modeToggle = document.getElementById('mode-toggle');
@@ -73,7 +77,7 @@
             } else {
                 modeToggle.classList.add('rotated');
             }
-        
+
             // Save preference
             const currentTheme = htmlElement.classList.contains('dark-mode') ? 'dark' : 'light';
             localStorage.setItem('cipher-theme', currentTheme);
@@ -85,17 +89,17 @@
             document.querySelectorAll('.cipher-selector button').forEach(btn => {
                 btn.classList.remove('active');
             });
-        
+
             event.target.classList.add('active');
             currentCipher = cipher;
-        
+
             const keyInput = document.getElementById('key-input');
             const keyInput2 = document.getElementById('key-input-2');
-        
+
             // Reset both inputs
             keyInput.style.display = 'block';
             keyInput2.style.display = 'none';
-        
+
             switch(cipher) {
                 case 'caesar':
                     keyInput.placeholder = 'Enter shift value (1-25)';
@@ -142,7 +146,7 @@
             // Placeholder encryption logic
             switch(currentCipher) {
                 case 'caesar':
-                    resultOutput.textContent = 'Caesar Cipher Encryption Result';
+                    location.href = `{% url 'cipher:caesar_cipher_encrypt' %}?key=${key}&text=${text}`;
                     break;
                 case 'vigenere':
                     resultOutput.textContent = 'Vigenère Cipher Encryption Result';
@@ -179,7 +183,7 @@
             // Placeholder decryption logic
             switch(currentCipher) {
                 case 'caesar':
-                    resultOutput.textContent = 'Caesar Cipher Decryption Result';
+                    location.href = `{% url 'cipher:caesar_cipher_decrypt' %}?key=${key}&text=${text}`;
                     break;
                 case 'vigenere':
                     resultOutput.textContent = 'Vigenère Cipher Decryption Result';
@@ -202,5 +206,6 @@
         // Default to Caesar Cipher on load
         selectCipher('caesar');
     </script>
+    <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>

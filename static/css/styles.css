@@ -135,6 +135,7 @@ body {
     background-color: var(--background);
     color: var(--text-primary);
     font-size: 16px;
+    resize: none;
 }
 
 .cipher-actions {
@@ -229,4 +230,28 @@ body {
 
 .double-columnar-keys.active {
     display: flex;
+}
+
+
+/* RESET STYLE */
+
+.reset-button {
+    padding: 12px 20px;
+    background-color: #f44336; /* Red color */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    position: fixed;
+    bottom: 20px; /* Distance from the bottom of the screen */
+    right: 20px;  /* Distance from the right edge of the screen */
+    z-index: 1000; /* Ensure it is above other content */
+}
+
+.reset-button:hover {
+    background-color: #d32f2f;
 }
