@@ -255,3 +255,34 @@ body {
 .reset-button:hover {
     background-color: #d32f2f;
 }
+
+
+
+
+
+
+/* Add keyframes for fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px); /* Slight downward offset */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0); /* Original position */
+    }
+}
+
+/* Apply the animation to the container */
+.cipher-container {
+    animation: fadeIn 0.8s ease-out; /* Duration and easing */
+    opacity: 0; /* Initial state */
+}
+
+.cipher-selector button,
+.cipher-input input,
+.cipher-actions button {
+    animation: fadeIn 0.6s ease-out;
+    animation-delay: 0.2s; /* Stagger the animation */
+    animation-fill-mode: backwards; /* Ensure delay starts from invisible state */
+}
