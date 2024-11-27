@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Team</title>
+    <style>
+        /* CSS Variables for Light and Dark Modes */
+        :root {
+            /* Light Mode Colors */
+            --bg-gradient-light: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+            --container-bg-light: #ffffff;
+            --text-primary-light: #333333;
+            --text-secondary-light: #555555;
+            --button-bg-light: #007bff;
+            --button-hover-light: #0056b3;
+            --toggle-bg-light: #e0e0e0;
+            --toggle-knob-light: #ffffff;
+
+            /* Dark Mode Colors */
+            --bg-gradient-dark: linear-gradient(135deg, #1f1c2c, #928dab);
+            --container-bg-dark: #2c2c54;
+            --text-primary-dark: #f0f0f0;
+            --text-secondary-dark: #cccccc;
+            --button-bg-dark: #1e90ff;
+            --button-hover-dark: #1c86ee;
+            --toggle-bg-dark: #555555;
+            --toggle-knob-dark: #ffffff;
+
+            /* Default Theme (Light) */
+            --bg-gradient: var(--bg-gradient-light);
+            --container-bg: var(--container-bg-light);
+            --text-primary: var(--text-primary-light);
+            --text-secondary: var(--text-secondary-light);
+            --button-bg: var(--button-bg-light);
+            --button-hover: var(--button-hover-light);
+            --toggle-bg: var(--toggle-bg-light);
+            --toggle-knob: var(--toggle-knob-light);
+        }
+
+        /* Dark Mode Overrides */
+        .dark-mode {
+            --bg-gradient: var(--bg-gradient-dark);
+            --container-bg: var(--container-bg-dark);
+            --text-primary: var(--text-primary-dark);
+            --text-secondary: var(--text-secondary-dark);
+            --button-bg: var(--button-bg-dark);
+            --button-hover: var(--button-hover-dark);
+            --toggle-bg: var(--toggle-bg-dark);
+            --toggle-knob: var(--toggle-knob-dark);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Container Styles */
+        .container {
+            background-color: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px 30px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .container h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .leader {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+
+        .leader strong {
+            color: var(--text-primary);
+        }
+
+        .members {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px;
+            font-size: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .members li {
+            background: var(--toggle-bg);
+            color: var(--text-primary);
+            border-radius: 6px;
+            padding: 8px 12px;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .members li:hover {
+            background: var(--button-hover);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* Button Styles */
+        .button {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 1rem;
+            color: #ffffff;
+            background-color: var(--button-bg);
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .button:hover {
+            background-color: var(--button-hover);
+            transform: scale(1.05);
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 24px;
+            background-color: var(--toggle-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-knob {
+            width: 20px;
+            height: 20px;
+            background-color: var(--toggle-knob);
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .dark-mode .toggle-knob {
+            transform: translateX(26px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .container h1 {
+                font-size: 1.5rem;
+            }
+
+            .button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .members {
+                gap: 8px;
+            }
+
+            .members li {
+                padding: 6px 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toggle Switch for Light/Dark Mode -->
+    <div class="toggle-switch" id="theme-toggle" aria-label="Toggle Light/Dark Mode">
+        <div class="toggle-knob"></div>
+    </div>
+
+    <div class="container">
+        <h1>Meet Our Team</h1>
+        <p class="leader"><strong>Leader:</strong> Celso M. Puerto Jr.</p>
+        <ul class="members" id="members-list">
+            <!-- Member names will be populated here -->
+        </ul>
+        <a href="{% url 'cipher:cipher' %}" class="button">Go to Symmetric Cipher Tool</a>
+    </div>
+
+    <script>
+        // JavaScript for Shuffling Members and Theme Toggle
+
+        // Member names array
+        const members = [
+            "Abby Erica Sejismundo",
+            "Adi Swerte",
+            "Angebon Reyes",
+            "Clyd Daniel Quiñones",
+            "Jay Dapitan",
+            "Jessel Ann Ortega",
+            "John Anthony Buena",
+            "Jun Dalton Magallanes",
+            "Michelle Encarnacion",
+            "Sherwin Romano"
+        ];
+
+        // Shuffle function using Fisher-Yates algorithm
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Populate the members list
+        const membersList = document.getElementById('members-list');
+        shuffle(members).forEach(member => {
+            const li = document.createElement('li');
+            li.textContent = member;
+            membersList.appendChild(li);
+        });
+
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const currentTheme = localStorage.getItem('theme') || 'light';
+
+        // Apply saved theme on load
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Toggle theme on click
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            let theme = 'light';
+            if (document.body.classList.contains('dark-mode')) {
+                theme = 'dark';
+            }
+            localStorage.setItem('theme', theme);
+        });
+    </script>
+</body>
+</html>

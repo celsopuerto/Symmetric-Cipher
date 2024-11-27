@@ -4,6 +4,7 @@ from . import views
 app_name = 'cipher'
 
 urlpatterns = [
+    path('', views.landing, name="landing"),
     path('cipher', views.cipher, name="cipher"),
     
     #CAESAR CIPHER
