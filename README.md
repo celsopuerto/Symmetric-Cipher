@@ -22,7 +22,7 @@ Ensure you have the following installed on your system:
 1. Clone the repository:  
    ```bash
    git clone https://github.com/celsopuerto/Symmetric-Cipher.git
-   cd symmetric-cipher-tool
+   cd Symmetric-Cipher
 
 2. Create a virtual environment:
    ```bash
