@@ -10,6 +10,16 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
 </head>
 <body>
+    <!-- Modal for displaying the step-by-step encryption/decryption process -->
+    <div id="solution-modal" class="solution-modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3>Encryption/Decryption Process</h3>
+            <div id="modal-steps-container">{{ steps }}</div>
+            <button class="modal-close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
     <button id="mode-toggle" class="mode-toggle" aria-label="Toggle Dark/Light Mode">
         🌓
     </button>
@@ -44,13 +54,16 @@
         </div>
 
         <div class="cipher-output">
+            <button class="show-solution-btn" onclick="triggerModal()">View Solution</button>
             <h3>Result:</h3>
-            <p id="result-output">{%if encrypted_text %}
-                {{ encrypted_text }}
+            <p id="result-output">{%if data %}
+                {{ data }}
                 {% endif %}
             </p>
+            
         </div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const cipherContainer = document.querySelector('.cipher-container');
@@ -58,6 +71,12 @@
                 cipherContainer.style.opacity = '1'; // Ensure visibility after animation
             }
         });
+
+        const encryptionSteps = `{{ steps|safe }}`;
+        const mode = `{{ mode|safe }}`;
+        function triggerModal() {
+            showModal(encryptionSteps);
+        }
 
         // Dark/Light Mode Toggle
         const modeToggle = document.getElementById('mode-toggle');
@@ -91,7 +110,13 @@
             localStorage.setItem('cipher-theme', currentTheme);
         });
 
-        let currentCipher = 'caesar';
+        let currentCipher;
+
+        {% if cipher %}
+            currentCipher = "{{ cipher }}"; 
+        {% else %}
+            currentCipher = 'caesar'; 
+        {% endif %}
 
         function selectCipher(cipher) {
             document.querySelectorAll('.cipher-selector button').forEach(btn => {
@@ -154,13 +179,13 @@
             // Placeholder encryption logic
             switch(currentCipher) {
                 case 'caesar':
-                    location.href = `{% url 'cipher:caesar_cipher_encrypt' %}?key=${key}&text=${text}`;
+                    location.href = `{% url 'cipher:caesar_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
                     break;
                 case 'vigenere':
-                    resultOutput.textContent = 'Vigenère Cipher Encryption Result';
+                    location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
                     break;
                 case 'playfair':
-                    resultOutput.textContent = 'Playfair Cipher Encryption Result';
+                    location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
                     break;
                 case 'single-columnar':
                     resultOutput.textContent = 'Single Columnar Cipher Encryption Result';
@@ -191,13 +216,13 @@
             // Placeholder decryption logic
             switch(currentCipher) {
                 case 'caesar':
-                    location.href = `{% url 'cipher:caesar_cipher_decrypt' %}?key=${key}&text=${text}`;
+                    location.href = `{% url 'cipher:caesar_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
                 case 'vigenere':
-                    resultOutput.textContent = 'Vigenère Cipher Decryption Result';
+                    location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
                 case 'playfair':
-                    resultOutput.textContent = 'Playfair Cipher Decryption Result';
+                    location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
                 case 'single-columnar':
                     resultOutput.textContent = 'Single Columnar Cipher Decryption Result';
@@ -211,8 +236,17 @@
             }
         }
 
-        // Default to Caesar Cipher on load
-        selectCipher('caesar');
+        function showModal(steps) {
+            // Replace the content of the modal's container with the steps
+            document.getElementById('modal-steps-container').innerHTML = steps;
+            // Display the modal
+            document.getElementById('solution-modal').style.display = 'block';
+        }
+        
+        function closeModal() {
+            // Hide the modal
+            document.getElementById('solution-modal').style.display = 'none';
+        }
     </script>
     <script src="{% static 'js/script.js' %}"></script>
 </body>
