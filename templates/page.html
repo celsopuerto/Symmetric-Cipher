@@ -1,0 +1,206 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symmetric Cipher Tool</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
+</head>
+<body>
+    <button id="mode-toggle" class="mode-toggle" aria-label="Toggle Dark/Light Mode">
+        🌓
+    </button>
+
+    <div class="cipher-container">
+        <div class="cipher-header">
+            <h1>Symmetric Cipher Tool</h1>
+        </div>
+        
+        <div class="cipher-selector">
+            <button onclick="selectCipher('caesar')">Caesar</button>
+            <button onclick="selectCipher('vigenere')">Vigenère</button>
+            <button onclick="selectCipher('playfair')">Playfair</button>
+            <button onclick="selectCipher('single-columnar')">Single Columnar</button>
+            <button onclick="selectCipher('double-columnar')">Double Columnar</button>
+            <button onclick="selectCipher('aes')">AES</button>
+        </div>
+
+        <div id="cipher-inputs" class="cipher-input">
+            <div id="keys-container" class="keys-container">
+                <input type="text" id="key-input" placeholder="Enter encryption key">
+                <input type="text" id="key-input-2" placeholder="Enter second key for Double Columnar Cipher" style="display: none;">
+            </div>
+            <textarea id="text-input" placeholder="Enter text to encrypt/decrypt"></textarea>
+        </div>
+
+        <div class="cipher-actions">
+            <button onclick="encrypt()">Encrypt</button>
+            <button onclick="decrypt()">Decrypt</button>
+        </div>
+
+        <div class="cipher-output">
+            <h3>Result:</h3>
+            <p id="result-output"></p>
+        </div>
+    </div>
+
+    <script>
+        // Dark/Light Mode Toggle
+        const modeToggle = document.getElementById('mode-toggle');
+        const htmlElement = document.documentElement;
+
+        // Check for saved theme preference or system preference
+        const savedTheme = localStorage.getItem('cipher-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+        // Set initial theme
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark.matches)) {
+            htmlElement.classList.add('dark-mode');
+            modeToggle.classList.remove('rotated');
+        } else {
+            modeToggle.classList.add('rotated');
+        }
+
+        modeToggle.addEventListener('click', () => {
+            // Toggle dark mode
+            htmlElement.classList.toggle('dark-mode');
+            
+            // Toggle rotation state
+            if (modeToggle.classList.contains('rotated')) {
+                modeToggle.classList.remove('rotated');
+            } else {
+                modeToggle.classList.add('rotated');
+            }
+        
+            // Save preference
+            const currentTheme = htmlElement.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('cipher-theme', currentTheme);
+        });
+
+        let currentCipher = 'caesar';
+
+        function selectCipher(cipher) {
+            document.querySelectorAll('.cipher-selector button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        
+            event.target.classList.add('active');
+            currentCipher = cipher;
+        
+            const keyInput = document.getElementById('key-input');
+            const keyInput2 = document.getElementById('key-input-2');
+        
+            // Reset both inputs
+            keyInput.style.display = 'block';
+            keyInput2.style.display = 'none';
+        
+            switch(cipher) {
+                case 'caesar':
+                    keyInput.placeholder = 'Enter shift value (1-25)';
+                    keyInput.type = 'number';
+                    break;
+                case 'vigenere':
+                    keyInput.placeholder = 'Enter alphabetic key';
+                    keyInput.type = 'text';
+                    break;
+                case 'playfair':
+                    keyInput.placeholder = 'Enter keyword for matrix';
+                    keyInput.type = 'text';
+                    break;
+                case 'single-columnar':
+                    keyInput.placeholder = 'Enter column order (e.g., 4231)';
+                    keyInput.type = 'text';
+                    break;
+                case 'double-columnar':
+                    keyInput.placeholder = 'Enter first key for Double Columnar Cipher';
+                    keyInput2.style.display = 'block'; // Show second key input
+                    keyInput2.placeholder = 'Enter second key for Double Columnar Cipher';
+                    break;
+                case 'aes':
+                    keyInput.placeholder = 'Enter AES key (128/192/256 bits)';
+                    keyInput.type = 'text';
+                    break;
+            }
+        }
+
+        function encrypt() {
+            const resultOutput = document.getElementById('result-output');
+            let key, key2, text;
+
+            // Get inputs based on current cipher
+            if (currentCipher === 'double-columnar') {
+                key = document.getElementById('key-input').value;
+                key2 = document.getElementById('key-input-2').value;
+                text = document.getElementById('text-input').value;
+            } else {
+                key = document.getElementById('key-input').value;
+                text = document.getElementById('text-input').value;
+            }
+
+            // Placeholder encryption logic
+            switch(currentCipher) {
+                case 'caesar':
+                    resultOutput.textContent = 'Caesar Cipher Encryption Result';
+                    break;
+                case 'vigenere':
+                    resultOutput.textContent = 'Vigenère Cipher Encryption Result';
+                    break;
+                case 'playfair':
+                    resultOutput.textContent = 'Playfair Cipher Encryption Result';
+                    break;
+                case 'single-columnar':
+                    resultOutput.textContent = 'Single Columnar Cipher Encryption Result';
+                    break;
+                case 'double-columnar':
+                    resultOutput.textContent = `Double Columnar Cipher Encryption Result (Keys: ${key}, ${key2})`;
+                    break;
+                case 'aes':
+                    resultOutput.textContent = 'AES Cipher Encryption Result';
+                    break;
+            }
+        }
+
+        function decrypt() {
+            const resultOutput = document.getElementById('result-output');
+            let key, key2, text;
+
+            // Get inputs based on current cipher
+            if (currentCipher === 'double-columnar') {
+                key = document.getElementById('key-input').value;
+                key2 = document.getElementById('key-input-2').value;
+                text = document.getElementById('text-input').value;
+            } else {
+                key = document.getElementById('key-input').value;
+                text = document.getElementById('text-input').value;
+            }
+
+            // Placeholder decryption logic
+            switch(currentCipher) {
+                case 'caesar':
+                    resultOutput.textContent = 'Caesar Cipher Decryption Result';
+                    break;
+                case 'vigenere':
+                    resultOutput.textContent = 'Vigenère Cipher Decryption Result';
+                    break;
+                case 'playfair':
+                    resultOutput.textContent = 'Playfair Cipher Decryption Result';
+                    break;
+                case 'single-columnar':
+                    resultOutput.textContent = 'Single Columnar Cipher Decryption Result';
+                    break;
+                case 'double-columnar':
+                    resultOutput.textContent = `Double Columnar Cipher Decryption Result (Keys: ${key}, ${key2})`;
+                    break;
+                case 'aes':
+                    resultOutput.textContent = 'AES Cipher Decryption Result';
+                    break;
+            }
+        }
+
+        // Default to Caesar Cipher on load
+        selectCipher('caesar');
+    </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+:root {
+    /* Light Mode Colors */
+    --background-light: #f4f6f9;
+    --background-element-light: #ffffff;
+    --text-primary-light: #202124;
+    --text-secondary-light: #5f6368;
+    --primary-light: #3367D6;
+    --primary-hover-light: #2a5ad4;
+    --border-light: #dadce0;
+    
+    /* Dark Mode Colors */
+    --background-dark: #121212;
+    --background-element-dark: #1e1e1e;
+    --text-primary-dark: #ffffff;
+    --text-secondary-dark: #b0b0b0;
+    --primary-dark: #6fa6d6;
+    --primary-hover-dark: #8ab4f8;
+    --border-dark: #333333;
+
+    /* Default to Light Mode */
+    --background: var(--background-light);
+    --background-element: var(--background-element-light);
+    --text-primary: var(--text-primary-light);
+    --text-secondary: var(--text-secondary-light);
+    --primary: var(--primary-light);
+    --primary-hover: var(--primary-hover-light);
+    --border: var(--border-light);
+}
+
+/* Dark Mode */
+html.dark-mode {
+    --background: var(--background-dark);
+    --background-element: var(--background-element-dark);
+    --text-primary: var(--text-primary-dark);
+    --text-secondary: var(--text-secondary-dark);
+    --primary: var(--primary-dark);
+    --primary-hover: var(--primary-hover-dark);
+    --border: var(--border-dark);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+    font-family: 'Arial', 'Google Sans', sans-serif;
+    background-color: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.cipher-container {
+    background-color: var(--background-element);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px;
+    padding: 30px;
+}
+
+.mode-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--text-secondary);
+    transform: rotate(-30deg);
+    transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.mode-toggle.rotated {
+    transform: rotate(150deg);
+}
+
+.cipher-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.cipher-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.cipher-selector button {
+    background-color: var(--background);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.cipher-selector button:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.cipher-selector button.active {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.cipher-input {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cipher-input input, 
+.cipher-input textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.cipher-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.cipher-actions button {
+    flex: 1;
+    padding: 12px 20px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background-color 0.3s ease;
+}
+
+.cipher-actions button:hover {
+    background-color: var(--primary-hover);
+}
+
+.cipher-output {
+    margin-top: 20px;
+    background-color: var(--background);
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    min-height: 100px;
+}
+
+@media screen and (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .cipher-container {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .cipher-selector {
+        flex-direction: column;
+    }
+
+    .cipher-selector button {
+        width: 100%;
+    }
+
+    .cipher-actions {
+        flex-direction: column;
+    }
+
+    .mode-toggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+    }
+}
+
+/* Responsive Typography */
+@media screen and (max-width: 400px) {
+    .cipher-container {
+        font-size: 14px;
+    }
+
+    .cipher-selector button {
+        padding: 8px 12px;
+    }
+}
+
+.keys-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap; /* Ensures responsiveness */
+}
+
+.keys-container input {
+    flex: 1; /* Allow inputs to take equal space */
+    min-width: 45%; /* Maintain good appearance on small screens */
+}
+
+.double-columnar-keys {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.double-columnar-keys.active {
+    display: flex;
+}
