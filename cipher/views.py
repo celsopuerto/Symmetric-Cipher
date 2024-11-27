@@ -26,5 +26,5 @@ def playfair_cipher(request):
     text = request.GET.get('text', '')
     mode = request.GET.get('mode', '')
     cipher = 'playfair'
-    encrypted_text = perform_playfair_cipher(key, text, mode)
-    return render(request, 'page.html', {'data': encrypted_text, 'key': key, 'text': text, 'mode': mode, 'cipher': cipher})
+    encrypted_text, steps = perform_playfair_cipher(key, text, mode)
+    return render(request, 'page.html', {'data': encrypted_text, 'key': key, 'text': text, 'steps': steps, 'mode': mode, 'cipher': cipher})

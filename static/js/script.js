@@ -4,7 +4,14 @@ function resetFields() {
     document.getElementById('key-input-2').value = '';
     document.getElementById('text-input').value = '';
     document.getElementById('result-output').textContent = '';
+
+    // Clear the solution modal steps container
+    document.getElementById('modal-steps-container').innerHTML = '';
+
     // Reset the active cipher selection
     currentCipher = 'caesar';
-    selectCipher('caesar');  // Resets to Caesar cipher (default)
+    selectCipher('caesar'); // Resets to Caesar cipher (default)
+
+    // Ensure the modal is closed
+    document.getElementById('solution-modal').style.display = 'none';
 }
