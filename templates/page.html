@@ -8,14 +8,54 @@
     <title>Symmetric Cipher Tool</title>
     <link rel="icon" type="image/png" href="{% static 'img/icon.png' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="{% static 'js/script.js' %}"></script>
 </head>
 <body>
+    <!-- Success notification (copied to clipboard) -->
+    <div id="copy-notification" class="copy-notification success">
+        <p>Copied to clipboard!</p>
+    </div>
+
+    <!-- Error notification (nothing to copy) -->
+    <div id="error-notification" class="copy-notification error">
+        <p>Nothing to copy!</p>
+    </div>
+
+    {% if messages %}
+        <div class="message-container">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
     <!-- Modal for displaying the step-by-step encryption/decryption process -->
     <div id="solution-modal" class="solution-modal" style="display: none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h3>Encryption/Decryption Process</h3>
-            <div id="modal-steps-container">{{ steps }}</div>
+            <div>
+                {% for grid in grids %}
+                    <table style="width: 100%; border-collapse: collapse; text-align: center;">
+                        <tbody>
+                            {% for row in grid %}
+                                <tr>
+                                    {% for cell in row %}
+                                        <td style="border: 1px solid #ddd; padding: 8px;">{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <br>
+                {% endfor %}
+            </div>
+            <div id="modal-steps-container">
+                {{ step|safe }}
+            </div>
             <button class="modal-close-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
@@ -32,20 +72,20 @@
         </div>
         
         <div class="cipher-selector">
-            <button onclick="selectCipher('caesar')">Caesar</button>
-            <button onclick="selectCipher('vigenere')">Vigenère</button>
-            <button onclick="selectCipher('playfair')">Playfair</button>
-            <button onclick="selectCipher('single-columnar')">Single Columnar</button>
-            <button onclick="selectCipher('double-columnar')">Double Columnar</button>
-            <button onclick="selectCipher('aes')">AES</button>
+            <button onclick="selectCipher('caesar')" class="{% if cipher == 'caesar' %}active{% endif %}">Caesar</button>
+            <button onclick="selectCipher('vigenere')" class="{% if cipher == 'vigenere' %}active{% endif %}">Vigenère</button>
+            <button onclick="selectCipher('playfair')" class="{% if cipher == 'playfair' %}active{% endif %}">Playfair</button>
+            <button onclick="selectCipher('single-columnar')" class="{% if cipher == 'single-columnar' %}active{% endif %}">Single Columnar</button>
+            <button onclick="selectCipher('double-columnar')" class="{% if cipher == 'double-columnar' %}active{% endif %}">Double Columnar</button>
+            <button onclick="selectCipher('aes')" class="{% if cipher == 'aes' %}active{% endif %}">AES</button>
         </div>
 
         <div id="cipher-inputs" class="cipher-input">
-            <div id="keys-container" class="keys-container">
-                <input type="text" id="key-input" placeholder="Enter shift value (1-25)" {% if key %}value="{{ key }}"{% endif %}>
+            <div id="keys-container" class="keys-container" >
+                <input type="text" id="key-input" placeholder="Enter shift value (1-25)" {% if key %}value="{{ key }}"{% endif %} required>
                 <input type="text" id="key-input-2" placeholder="Enter second key for Double Columnar Cipher" style="display: none;" {% if key %}value="{{ key2 }}"{% endif %}>
             </div>
-            <textarea id="text-input" placeholder="Enter text to encrypt/decrypt">{% if key %}{{ text }}{% endif %}</textarea>
+            <textarea id="text-input" placeholder="Enter text to encrypt/decrypt" style="letter-spacing: 3px;" required>{% if key %}{{ text }}{% endif %}</textarea>
         </div>
 
         <div class="cipher-actions">
@@ -55,12 +95,18 @@
 
         <div class="cipher-output">
             <button class="show-solution-btn" onclick="triggerModal()">View Solution</button>
-            <h3>Result:</h3>
-            <p id="result-output">{%if data %}
-                {{ data }}
+        
+            <p id="result-output" style="letter-spacing: 3px;">
+                {% if data2 %}
+                    {{ data2 }}
+                {% else %}
+                    {{ data }}
                 {% endif %}
             </p>
-            
+
+            <button id="copy-btn" class="copy-btn" onclick="copyToClipboard()">
+                <i class="fas fa-copy"></i>
+            </button>
         </div>
     </div>
 
@@ -197,13 +243,13 @@
                     location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
                     break;
                 case 'single-columnar':
-                    resultOutput.textContent = 'Single Columnar Cipher Encryption Result';
+                    location.href = `{% url 'cipher:single-columnar_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
                     break;
                 case 'double-columnar':
                     location.href = `{% url 'cipher:double-columnar_cipher' %}?key=${key}&key2=${key2}&text=${text}&mode=encrypt`;
                     break;
                 case 'aes':
-                    resultOutput.textContent = 'AES Cipher Encryption Result';
+                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
                     break;
             }
         }
@@ -234,13 +280,13 @@
                     location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
                 case 'single-columnar':
-                    resultOutput.textContent = 'Single Columnar Cipher Decryption Result';
+                    location.href = `{% url 'cipher:single-columnar_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
                 case 'double-columnar':
                     location.href = `{% url 'cipher:double-columnar_cipher' %}?key=${key}&key2=${key2}&text=${text}&mode=decrypt`;
                     break;
                 case 'aes':
-                    resultOutput.textContent = 'AES Cipher Decryption Result';
+                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
             }
         }
@@ -257,6 +303,5 @@
             document.getElementById('solution-modal').style.display = 'none';
         }
     </script>
-    <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>

@@ -446,3 +446,157 @@ body {
  
     }
 }
+
+
+/* COPY DESIGN */
+.copy-btn {
+    position: absolute;
+    top: 5px;
+    left: 7px;
+    padding: 3px 8px;
+    background-color: var(--border);
+    border: 1px solid var(--border);
+    color: var(--text-secondary-light);
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    opacity: .8;
+}
+
+.copy-btn:hover {
+    background-color: var(--text-secondary-dark);
+}
+
+.copy-btn:active {
+    transform: scale(0.98);
+}
+
+
+/* COPY MESSAGE ANIMATION */
+.copy-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    display: none; /* Initially hidden */
+    opacity: 0;
+    z-index: 1000;
+    transition: opacity 0.5s ease;
+}
+
+/* Success Notification */
+.copy-notification.success {
+    background-color: var(--border); /* Primary color for success */
+    color: var(--text-primary); /* Light mode text color */
+}
+
+/* Error Notification (Nothing to Copy) */
+.copy-notification.error {
+    background-color: rgb(255, 97, 97); /* Red background for error */
+    color: var(--text-primary-dark); /* Text color for light mode */
+}
+
+/* Show notification */
+.copy-notification.show {
+    display: block;
+    opacity: 1;
+    animation: fadeInOut 3s forwards;
+}
+
+/* Fade in and fade out animation */
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+
+
+html.dark-mode .copy-notification.error {
+    background-color: rgb(255, 76, 76); /* Red background for error (same in both modes) */
+    color: var(--text-primary-dark); /* Dark mode text color */
+}
+
+
+
+
+
+
+.message-container {
+    position: fixed;
+    bottom: 15px;    /* Position 20px from the bottom */
+    left: 20px;      /* Position 20px from the left */
+    z-index: 9999;
+    max-width: 200px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* General message styles */
+.message {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #fff;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: showMessage 0.5s ease-out forwards;
+}
+
+/* Animation for showing the message */
+@keyframes showMessage {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation for hiding the message */
+@keyframes hideMessage {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Success message */
+.message.success {
+    background-color: #4CAF50;  /* Green */
+}
+
+/* Error message */
+.message.error {
+    background-color: #f44336;  /* Red */
+}
+
+/* Info message */
+.message.info {
+    background-color: #2196F3;  /* Blue */
+}
+
+/* Warning message */
+.message.warning {
+    background-color: #ff9800;  /* Orange */
+}
