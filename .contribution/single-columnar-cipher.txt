@@ -1,0 +1,51 @@
+Encryption
+def single_columnar_encrypt(plaintext, keyword):
+    print("\n--- Encryption ---")
+    # Replace spaces with underscores and convert to uppercase
+    plaintext = plaintext.replace(" ", "_").upper()
+    keyword = keyword.upper()
+    
+    # Calculate dimensions of the grid
+    key_len = len(keyword)
+    num_rows = (len(plaintext) + key_len - 1) // key_len  # Ceiling division
+    
+    # Pad plaintext with '_'
+    padding = '_' * (num_rows * key_len - len(plaintext))
+    plaintext += padding
+    
+    # Create the grid row-wise
+    grid = [['' for _ in range(key_len)] for _ in range(num_rows)]
+    k = 0
+    for i in range(num_rows):
+        for j in range(key_len):
+            grid[i][j] = plaintext[k]
+            k += 1
+    
+    # Display the grid
+    print("\nGrid:")
+    for row in grid:
+        print(" ".join(row))
+    
+    # Sort the keyword and create a mapping of column indices
+    sorted_keyword = sorted((char, idx) for idx, char in enumerate(keyword))
+    column_order = [idx for char, idx in sorted_keyword]
+    
+    # Generate ciphertext column-wise
+    ciphertext = ""
+    print("\nColumn order (sorted by keyword):")
+    for idx in column_order:
+        print(f"Column {idx + 1} (Letter: '{keyword[idx]}')")
+        for row in grid:
+            ciphertext += row[idx]
+    
+    print("\nCiphertext:", ciphertext)
+    return ciphertext
+
+# Input and call the function
+plaintext = input("Enter plaintext: ")
+keyword = input("Enter keyword: ")
+
+ciphertext = single_columnar_encrypt(plaintext, keyword)
+
+Decryption
+

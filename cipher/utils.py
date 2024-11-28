@@ -77,7 +77,6 @@ def generate_matrix(key):
     # Return the matrix as a list of lists (5x5 grid)
     return [matrix[i:i + 5] for i in range(0, 25, 5)]
 
-
 def prepare_text(text):
     text = text.upper().replace("J", "I")
     text = ''.join([char for char in text if char.isalpha()])
@@ -97,13 +96,11 @@ def prepare_text(text):
 
     return digraphs
 
-
 def find_position(matrix, char):
     for i, row in enumerate(matrix):
         if char in row:
             return i, row.index(char)
     raise ValueError(f"Character {char} not found in matrix")
-
 
 def playfair_encrypt_decrypt(matrix, digraph, mode='encrypt'):
     try:
@@ -138,10 +135,10 @@ def perform_playfair_cipher(key, text, mode):
     solution_steps_html = f"<h3>Playfair Cipher Solution for '{text}'</h3>"
 
     # Display the matrix in a column-wise format
-    solution_steps_html += f"<p><b>Matrix:</b></p><pre>"
+    solution_steps_html += f"<h3><b>Matrix:</b><pre>"
     for row in matrix:
         solution_steps_html += " ".join(row) + "\n"  # Stack each row on top of each other
-    solution_steps_html += "</pre>"
+    solution_steps_html += "</pre></h3>"
 
     for i, digraph in enumerate(digraphs):
         solution_steps_html += f"<p><b>Step {i + 1}:</b> Encrypting/Decrypting Digraph: '{escape(digraph)}'</p>"
@@ -156,57 +153,262 @@ def perform_playfair_cipher(key, text, mode):
 
 
 #SINGLE COLUMNAR
+def single_columnar_cipher(text, keyword, mode):
+    steps = []  # Collect steps for display
+    grids = []  # Collect grids for visualization
+    decrypted_str = []
 
+    if mode == 'encrypt':
+        steps.append("Starting Encryption Process... <br>")
+        text = text.replace(" ", "_").upper()
+        keyword = keyword.upper()
+        steps.append(f"Text after replacing spaces with underscores: {text} <br>")
+        steps.append(f"Keyword: {keyword} <br>")
+        
+        key_len = len(keyword)
+        num_rows = (len(text) + key_len - 1) // key_len  # Ceiling division
+        
+        padding = '_' * (num_rows * key_len - len(text))
+        text += padding
+        steps.append(f"Padded text: {text} <br>")
+        
+        grid = [['' for _ in range(key_len)] for _ in range(num_rows)]
+        k = 0
+        for i in range(num_rows):
+            for j in range(key_len):
+                grid[i][j] = text[k]
+                k += 1
+        grids.append(grid)  # Add the grid for visualization
+        steps.append("Grid created with padded text. <br>")
+        
+        sorted_keyword = sorted((char, idx) for idx, char in enumerate(keyword))
+        column_order = [idx for char, idx in sorted_keyword]
+        
+        ciphertext = ""
+        for idx in column_order:
+            col_data = "".join(row[idx] for row in grid)
+            steps.append(f"Reading Column {idx + 1} (Keyword: '{keyword[idx]}'): {col_data} <br>")
+            ciphertext += col_data
+        
+        steps.append(f"Final Ciphertext: {ciphertext}")
+        steps_str = ''.join(steps)
+        return ciphertext, steps_str, grids, decrypted_str
+    else:
+        steps.append("Starting Decryption Process... <br>")
+        keyword = keyword.upper()
+        steps.append(f"Keyword: {keyword} <br>")
+        
+        key_len = len(keyword)
+        num_rows = (len(text) + key_len - 1) // key_len
+        
+        padding = '_' * (num_rows * key_len - len(text))
+        text += padding
+        steps.append(f"Padded ciphertext: {text} <br>")
+        
+        grid = [['' for _ in range(key_len)] for _ in range(num_rows)]
+        
+        sorted_keyword = sorted((char, idx) for idx, char in enumerate(keyword))
+        column_order = [idx for char, idx in sorted_keyword]
+        
+        k = 0
+        for idx in column_order:
+            for i in range(num_rows):
+                grid[i][idx] = text[k]
+                k += 1
+        grids.append(grid)  # Add the grid for visualization
+        steps.append("Grid filled column-wise based on sorted keyword. <br>")
+        
+        decrypted_str = "".join("".join(row) for row in grid)
+        plaintext = "".join("".join(row) for row in grid).rstrip('_').replace("_", " ")
+        steps.append(f"Final Decrypted Text: {plaintext} <br>")
+        steps_str = ''.join(steps)
+        return plaintext, steps_str, grids, decrypted_str
 
 
 #DOUBLE COLUMNAR
-def columnar_transposition_encrypt(plaintext, key):
-    # Sort key to determine column order
-    key_order = sorted(list(key))
-    col_order = [key.index(char) for char in key_order]
+def perform_double_columnar_cipher(text, keyword, mode):
+    steps = []  # Collect steps for display
+    grids = []  # Collect grids for visualization
+    decrypted_str = ""
 
-    # Fill grid with text
-    columns = [''] * len(key)
-    for i, char in enumerate(plaintext):
-        columns[i % len(key)] += char
-
-    # Rearrange columns based on the sorted key
-    ciphertext = ''.join(columns[i] for i in col_order)
-    return ciphertext
-
-
-def columnar_transposition_decrypt(ciphertext, key):
-    # Calculate grid dimensions
-    cols = len(key)
-    rows = math.ceil(len(ciphertext) / cols)
-    key_order = sorted(list(key))
-
-    # Determine column lengths
-    col_lengths = [rows] * cols
-    for i in range((rows * cols) - len(ciphertext)):
-        col_lengths[key_order.index(key[i])] -= 1
-
-    # Split ciphertext into columns based on lengths
-    start = 0
-    columns = {}
-    for i, col_len in enumerate(col_lengths):
-        columns[key_order[i]] = list(ciphertext[start:start + col_len])
-        start += col_len
-
-    # Reconstruct plaintext row-wise
-    plaintext = ''
-    for i in range(rows):
-        for k in key:
-            if columns[k]:
-                plaintext += columns[k].pop(0)
-
-    return plaintext
-
-
-def double_columnar_cipher(text, key1, key2, mode):
     if mode == 'encrypt':
-        intermediate = columnar_transposition_encrypt(text, key1)
-        return columnar_transposition_encrypt(intermediate, key2)
-    elif mode == 'decrypt':
-        intermediate = columnar_transposition_decrypt(text, key2)
-        return columnar_transposition_decrypt(intermediate, key1)
+        steps.append("Starting Encryption Process... <br>")
+        text = text.replace(" ", "_").upper()
+        keyword = keyword.upper()
+        steps.append(f"Text after replacing spaces with underscores: {text} <br>")
+        steps.append(f"Keyword: {keyword} <br>")
+        
+        key_len = len(keyword)
+        num_rows = (len(text) + key_len - 1) // key_len  # Ceiling division
+        
+        padding = '_' * (num_rows * key_len - len(text))
+        text += padding
+        steps.append(f"Padded text: {text} <br>")
+        
+        grid = [['' for _ in range(key_len)] for _ in range(num_rows)]
+        k = 0
+        for i in range(num_rows):
+            for j in range(key_len):
+                grid[i][j] = text[k]
+                k += 1
+        grids.append(grid)  # Add the grid for visualization
+        steps.append("Grid created with padded text. <br>")
+        
+        sorted_keyword = sorted((char, idx) for idx, char in enumerate(keyword))
+        column_order = [idx for char, idx in sorted_keyword]
+        
+        ciphertext = ""
+        for idx in column_order:
+            col_data = "".join(row[idx] for row in grid)
+            steps.append(f"Reading Column {idx + 1} (Keyword: '{keyword[idx]}'): {col_data} <br>")
+            ciphertext += col_data
+        
+        steps.append(f"Final Ciphertext: {ciphertext}")
+        steps_str = ''.join(steps)
+        return ciphertext, steps_str, grids, decrypted_str
+    else:
+        steps.append("Starting Decryption Process... <br>")
+        keyword = keyword.upper()
+        steps.append(f"Keyword: {keyword} <br>")
+        
+        key_len = len(keyword)
+        num_rows = (len(text) + key_len - 1) // key_len
+        
+        padding = '_' * (num_rows * key_len - len(text))
+        text += padding
+        steps.append(f"Padded ciphertext: {text} <br>")
+        
+        grid = [['' for _ in range(key_len)] for _ in range(num_rows)]
+        
+        sorted_keyword = sorted((char, idx) for idx, char in enumerate(keyword))
+        column_order = [idx for char, idx in sorted_keyword]
+        
+        k = 0
+        for idx in column_order:
+            for i in range(num_rows):
+                grid[i][idx] = text[k]
+                k += 1
+        grids.append(grid)  # Add the grid for visualization
+        steps.append("Grid filled column-wise based on sorted keyword. <br>")
+        
+        # In the decryption process, do NOT remove underscores
+        decrypted_str = "".join("".join(row) for row in grid)
+        
+        steps.append(f"Final Decrypted Text with padding: {decrypted_str} <br>")
+        steps_str = ''.join(steps)
+        return decrypted_str, steps_str, grids, decrypted_str
+
+
+def double_columnar_cipher(text, key, key2, mode):
+    steps = []  # Collect steps for display
+    if mode == 'encrypt':
+        steps.append("Starting Double Columnar Encryption Process... <br>")
+
+        # Step 1: First columnar transposition
+        steps.append(f"Performing first columnar transposition with key: {key} <br>")
+        first_pass, steps_str, grids, decrypted_str = perform_double_columnar_cipher(text, key, mode)
+        steps.append(f"Text after first columnar transposition: {first_pass} <br>")
+
+        # Step 2: Second columnar transposition
+        steps.append(f"Performing second columnar transposition with key: {key2} <br>")
+        second_pass, steps_str, grids, decrypted_str = perform_double_columnar_cipher(first_pass, key2, mode)
+        steps.append(f"Final encrypted text after double columnar transposition: {second_pass} <br>")
+
+        # Join the steps list into a single string for display
+        steps_str = ''.join(steps)
+        print(text)
+        print(first_pass)
+        print(second_pass)
+        return second_pass, steps_str, grids, decrypted_str
+    else:
+        steps.append("Starting Double Columnar Decryption Process... <br>")
+
+        # Step 1: First columnar transposition (decryption)
+        steps.append(f"Performing first columnar transposition with key: {key2} <br>")
+        first_pass, steps_str, grids, decrypted_str = perform_double_columnar_cipher(text, key2, mode)
+        steps.append(f"Text after first columnar transposition: {first_pass} <br>")
+
+        # Step 2: Second columnar transposition (decryption)
+        steps.append(f"Performing second columnar transposition with key: {key} <br>")
+        second_pass, steps_str, grids, decrypted_str = perform_double_columnar_cipher(first_pass, key, mode)
+        steps.append(f"Final decrypted text after double columnar transposition: {second_pass} <br>")
+
+        # Join the steps list into a single string for display
+        steps_str = ''.join(steps)
+        print(text)
+        print(first_pass)
+        print(second_pass)
+        return second_pass, steps_str, grids, decrypted_str
+    
+    
+# ADVANCED ENCRYPTION STANDARD
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import padding
+import os
+from base64 import b64encode, b64decode
+from hashlib import sha256
+
+class PerformAESCipher:
+    def __init__(self, key: bytes):
+        """
+        Initialize the AES cipher with a key. The key must be 16, 24, or 32 bytes long.
+        If the provided key is not of a valid size, it will be hashed to derive a 32-byte key.
+        """
+        if len(key) not in (16, 24, 32):
+            key = sha256(key).digest()  # Derive a 32-byte key from the given key
+        self.key = key
+        self.backend = default_backend()
+
+    def encrypt(self, data: str) -> str:
+        """
+        Encrypts the given string data using AES encryption in CBC mode.
+        Returns a base64-encoded string of the encrypted data (IV + ciphertext).
+        """
+        data_bytes = data.encode('utf-8')
+
+        # Pad the data to make it a multiple of the block size (16 bytes for AES)
+        padder = padding.PKCS7(128).padder()
+        padded_data = padder.update(data_bytes) + padder.finalize()
+
+        # Generate a random IV (Initialization Vector)
+        iv = os.urandom(16)
+
+        # Create a Cipher object with the key and IV
+        cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=self.backend)
+        encryptor = cipher.encryptor()
+
+        # Encrypt the padded data
+        encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+
+        # Return the IV and encrypted data as a base64-encoded string
+        return b64encode(iv + encrypted_data).decode('utf-8')
+
+    def decrypt(self, encrypted_data: str) -> str:
+        """
+        Decrypts a base64-encoded string of encrypted data (IV + ciphertext).
+        Returns the original plaintext string.
+        """
+        try:
+            encrypted_data_bytes = b64decode(encrypted_data)
+
+            # Extract the IV and encrypted data
+            iv = encrypted_data_bytes[:16]
+            ciphertext = encrypted_data_bytes[16:]
+
+            # Create a Cipher object with the key and IV
+            cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=self.backend)
+            decryptor = cipher.decryptor()
+
+            # Decrypt the data
+            decrypted_data = decryptor.update(ciphertext) + decryptor.finalize()
+
+            # Remove the padding from the decrypted data
+            unpadder = padding.PKCS7(128).unpadder()
+            data_bytes = unpadder.update(decrypted_data) + unpadder.finalize()
+
+            # Return the original plaintext string
+            return data_bytes.decode('utf-8')
+        except Exception as e:
+            # Raise a specific error for debugging purposes
+            raise ValueError(f"Decryption failed: {str(e)}")

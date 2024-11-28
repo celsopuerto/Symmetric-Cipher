@@ -23,5 +23,5 @@ urlpatterns = [
     path('double-columnar_cipher', views.doublecolumnar_cipher, name='double-columnar_cipher'),
     
     #ADVANCED ENCRYPTION STANDARD
-    path('aes_cipher', views.aes_cipher, name='aes_cipher'),
+    path('aes_cipher', views.aes_cipher_view, name='aes_cipher'),
 ]
