@@ -54,6 +54,46 @@ def perform_caesarcipher_encryp_decrypt(text, key, mode):
 
 
 #VIGENERE CIPHER
+def vigenere_encrypt(plaintext, key):
+    ciphertext = []
+    key = key.lower()  # make sure the key is in lowercase
+    key_length = len(key)
+    key_index = 0
+    
+    for char in plaintext:
+        if char.isalpha():
+            shift = ord(key[key_index % key_length]) - ord('a')
+            if char.islower():
+                encrypted_char = chr((ord(char) - ord('a') + shift) % 26 + ord('a'))
+            else:
+                encrypted_char = chr((ord(char) - ord('A') + shift) % 26 + ord('A'))
+            ciphertext.append(encrypted_char)
+            key_index += 1
+        else:
+            # Non-alphabetic characters are not encrypted
+            ciphertext.append(char)
+    
+    return ''.join(ciphertext)
+
+def vigenere_decrypt(ciphertext, key):
+    plaintext = []
+    key = key.lower()
+    key_length = len(key)
+    key_index = 0
+    
+    for char in ciphertext:
+        if char.isalpha():
+            shift = ord(key[key_index % key_length]) - ord('a')
+            if char.islower():
+                decrypted_char = chr((ord(char) - ord('a') - shift) % 26 + ord('a'))
+            else:
+                decrypted_char = chr((ord(char) - ord('A') - shift) % 26 + ord('A'))
+            plaintext.append(decrypted_char)
+            key_index += 1
+        else:
+            plaintext.append(char)
+    
+    return ''.join(plaintext)
 
 
 #PLAYFAIR CIPHER
@@ -79,20 +119,25 @@ def generate_matrix(key):
 
 def prepare_text(text):
     text = text.upper().replace("J", "I")
-    text = ''.join([char for char in text if char.isalpha()])
-
-    if len(text) % 2 != 0:
-        text += "X"
+    clean_text = ''.join([char if char.isalpha() else ' ' for char in text])
 
     digraphs = []
     i = 0
-    while i < len(text):
-        if i + 1 < len(text) and text[i] == text[i + 1]:
-            digraphs.append(text[i] + 'X')
+    while i < len(clean_text):
+        if clean_text[i] == ' ':
+            digraphs.append(' ')
             i += 1
-        else:
-            digraphs.append(text[i:i + 2])
+            continue
+
+        if i + 1 < len(clean_text) and clean_text[i + 1] != ' ' and clean_text[i] == clean_text[i + 1]:
+            digraphs.append(clean_text[i] + 'X')
+            i += 1
+        elif i + 1 < len(clean_text) and clean_text[i + 1] != ' ':
+            digraphs.append(clean_text[i] + clean_text[i + 1])
             i += 2
+        else:
+            digraphs.append(clean_text[i] + 'X')
+            i += 1
 
     return digraphs
 
@@ -103,6 +148,9 @@ def find_position(matrix, char):
     raise ValueError(f"Character {char} not found in matrix")
 
 def playfair_encrypt_decrypt(matrix, digraph, mode='encrypt'):
+    if digraph == ' ':
+        return ' '
+
     try:
         row1, col1 = find_position(matrix, digraph[0])
         row2, col2 = find_position(matrix, digraph[1])
@@ -141,13 +189,17 @@ def perform_playfair_cipher(key, text, mode):
     solution_steps_html += "</pre></h3>"
 
     for i, digraph in enumerate(digraphs):
-        solution_steps_html += f"<p><b>Step {i + 1}:</b> Encrypting/Decrypting Digraph: '{escape(digraph)}'</p>"
+        if digraph == ' ':
+            result += ' '
+            continue
+
+        solution_steps_html += f"<p><b>Step {i + 1}:</b> Encrypting/Decrypting Digraph: '{digraph}'</p>"
 
         try:
             result += playfair_encrypt_decrypt(matrix, digraph, mode)
-            solution_steps_html += f"<p>&nbsp;&nbsp;Resulting Pair: '{escape(result[-2:])}'</p>"
+            solution_steps_html += f"<p>&nbsp;&nbsp;Resulting Pair: '{result[-2:]}'</p>"
         except Exception as e:
-            solution_steps_html += f"<p>Error encrypting/decrypting digraph {escape(digraph)}: {e}</p>"
+            solution_steps_html += f"<p>Error encrypting/decrypting digraph {digraph}: {e}</p>"
 
     return result, solution_steps_html
 
