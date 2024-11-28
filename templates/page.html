@@ -31,12 +31,59 @@
             {% endfor %}
         </div>
     {% endif %}
-    
+
     <!-- Modal for displaying the step-by-step encryption/decryption process -->
     <div id="solution-modal" class="solution-modal" style="display: none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h3>Encryption/Decryption Process</h3>
+            {% if grids2 %}
+                <!-- First round (first columnar transposition) -->
+                <h4>First Columnar Transposition</h4>
+                <div>
+                    {% for grid in grids %}
+                        <table style="width: 100%; border-collapse: collapse; text-align: center;">
+                            <tbody>
+                                {% for row in grid %}
+                                    <tr>
+                                        {% for cell in row %}
+                                            <td style="border: 1px solid #ddd; padding: 0.1px; font-size: 0.85rem;">{{ cell }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <br>
+                    {% endfor %}
+                </div>
+                <div id="modal-steps-container">
+                    {{ steps|safe }}
+                </div>
+                
+                <!-- Second round (second columnar transposition) -->
+                {% if grids2 %}
+                <h4>Second Columnar Transposition</h4>
+                <div>
+                    {% for grid in grids2 %}
+                        <table style="width: 100%; border-collapse: collapse; text-align: center;">
+                            <tbody>
+                                {% for row in grid %}
+                                    <tr>
+                                        {% for cell in row %}
+                                            <td style="border: 1px solid #ddd; padding: 0.1px; font-size: 0.85rem;">{{ cell }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <br>
+                    {% endfor %}
+                </div>
+                <div id="modal-steps-container">
+                    {{ steps2|safe }}
+                </div>
+                {% endif %}
+            {% else %}
             <div>
                 {% for grid in grids %}
                     <table style="width: 100%; border-collapse: collapse; text-align: center;">
@@ -44,7 +91,7 @@
                             {% for row in grid %}
                                 <tr>
                                     {% for cell in row %}
-                                        <td style="border: 1px solid #ddd; padding: 8px;">{{ cell }}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.1px; font-size: 0.85rem;">{{ cell }}</td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
@@ -54,8 +101,9 @@
                 {% endfor %}
             </div>
             <div id="modal-steps-container">
-                {{ step|safe }}
+                {{ steps|safe }}
             </div>
+            {% endif %}
             <button class="modal-close-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
@@ -237,7 +285,7 @@
                     location.href = `{% url 'cipher:caesar_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
                     break;
                 case 'vigenere':
-                    resultOutput.textContent = 'Vigenere Cipher Encryption Result';
+                    location.href = `{% url 'cipher:vigenere_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
                     break;
                 case 'playfair':
                     location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
@@ -274,7 +322,7 @@
                     location.href = `{% url 'cipher:caesar_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
                 case 'vigenere':
-                    resultOutput.textContent = 'Vigenere Cipher Decryption Result';
+                    location.href = `{% url 'cipher:vigenere_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
                     break;
                 case 'playfair':
                     location.href = `{% url 'cipher:playfair_cipher' %}?key=${key}&text=${text}&mode=decrypt`;

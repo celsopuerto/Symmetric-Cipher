@@ -40,14 +40,16 @@ def caesar_cipher(request):
 
 # VIGENERE CIPHER
 def vigenere_cipher(request):
-    key = int(request.GET.get('key', 0))  # Default to 0 if no key is provided
+    key = request.GET.get('key', '')
     text = request.GET.get('text', '')
     mode = request.GET.get('mode', '')
+
     if not key or not text or not mode:
         messages.error(request, 'Please fill all inputs')
         return render(request, 'page.html')
+    messages.success(request, 'We are still working on this cipher')
     cipher = 'vigenere'
-    return render(request, 'page.html')
+    return render(request, 'page.html', {'key': key, 'text': text, 'cipher': cipher, 'mode': mode})
 
 
 # PLAYFAIR CIPHER
@@ -88,8 +90,9 @@ def doublecolumnar_cipher(request):
         messages.error(request, 'Please fill all inputs')
         return render(request, 'page.html')
     cipher = 'double-columnar'
-    encrypted_text, steps, grids, decrypted_str = double_columnar_cipher(text, key, key2, mode)
-    return render(request, 'page.html', {'data': encrypted_text, 'data2': decrypted_str, 'key': key, 'text': text, 'key2': key2, 'steps': steps, 'grids': grids, 'mode': mode, 'cipher': cipher})
+    encrypted_text, steps, steps2, grids, grids2, decrypted_str = double_columnar_cipher(text, key, key2, mode)
+    print(f'{steps2} {grids2}')
+    return render(request, 'page.html', {'data': encrypted_text, 'data2': decrypted_str, 'key': key, 'key2': key2, 'text': text, 'steps': steps, 'steps2': steps2, 'grids': grids, 'grids2': grids2, 'mode': mode, 'cipher': cipher})
 
 
 # ADVANCE ENCRYPTION STANDARD
