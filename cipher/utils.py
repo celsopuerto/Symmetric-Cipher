@@ -302,43 +302,26 @@ def perform_double_columnar_cipher(text, keyword, mode):
 def double_columnar_cipher(text, key, key2, mode):
     steps = []  # Collect steps for display
     if mode == 'encrypt':
-        steps.append("Starting Double Columnar Encryption Process... <br>")
-
-        # Step 1: First columnar transposition
-        steps.append(f"Performing first columnar transposition with key: {key} <br>")
+        
         first_pass, steps_str, grids, decrypted_str = perform_double_columnar_cipher(text, key, mode)
-        steps.append(f"Text after first columnar transposition: {first_pass} <br>")
-
-        # Step 2: Second columnar transposition
-        steps.append(f"Performing second columnar transposition with key: {key2} <br>")
-        second_pass, steps_str, grids, decrypted_str = perform_double_columnar_cipher(first_pass, key2, mode)
-        steps.append(f"Final encrypted text after double columnar transposition: {second_pass} <br>")
+        
+        second_pass, steps_str2, grids2, decrypted_str = perform_double_columnar_cipher(first_pass, key2, mode)
 
         # Join the steps list into a single string for display
-        steps_str = ''.join(steps)
         print(text)
         print(first_pass)
         print(second_pass)
-        return second_pass, steps_str, grids, decrypted_str
+        return second_pass, steps_str, steps_str2, grids, grids2, decrypted_str
     else:
-        steps.append("Starting Double Columnar Decryption Process... <br>")
 
-        # Step 1: First columnar transposition (decryption)
-        steps.append(f"Performing first columnar transposition with key: {key2} <br>")
         first_pass, steps_str, grids, decrypted_str = perform_double_columnar_cipher(text, key2, mode)
-        steps.append(f"Text after first columnar transposition: {first_pass} <br>")
 
-        # Step 2: Second columnar transposition (decryption)
-        steps.append(f"Performing second columnar transposition with key: {key} <br>")
-        second_pass, steps_str, grids, decrypted_str = perform_double_columnar_cipher(first_pass, key, mode)
-        steps.append(f"Final decrypted text after double columnar transposition: {second_pass} <br>")
+        second_pass, steps_str2, grids2, decrypted_str = perform_double_columnar_cipher(first_pass, key, mode)
 
-        # Join the steps list into a single string for display
-        steps_str = ''.join(steps)
         print(text)
         print(first_pass)
         print(second_pass)
-        return second_pass, steps_str, grids, decrypted_str
+        return second_pass, steps_str, steps_str2, grids, grids2, decrypted_str
     
     
 # ADVANCED ENCRYPTION STANDARD

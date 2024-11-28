@@ -324,7 +324,6 @@ body {
 }
 
 
-
 /* Modal Background */
 .solution-modal {
     display: flex;
@@ -346,13 +345,17 @@ body {
     color: var(--text-primary);
     border-radius: 8px;
     padding: 20px;
-    width: 90%;
-    max-width: 600px;
+    width: 600px; /* Fixed width */
+    height: 600px; /* Fixed height */
+    max-height: 600px;
+    overflow: hidden; /* Prevent content from overflowing the modal container */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    position: relative;
-    animation: fadeIn 0.3s ease-in-out;
-    transform: none; /* Ensures no scaling issue */
-    margin: 7% auto; /* Centers the modal horizontally */
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 3%;
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
 }
 
 /* Modal Header */
@@ -363,39 +366,58 @@ body {
     text-align: center;
 }
 
-/* Steps Container */
-.solution-modal .modal-content #modal-steps-container {
-    max-height: 300px;
-    overflow-y: auto;
+/* Wrapper for all Content in Modal (flex grow) */
+.solution-modal .modal-content .modal-inner-content {
+    flex-grow: 1; /* Allow inner content to grow and fill available space */
+    overflow-y: auto; /* Enable scrolling inside the content */
+}
+
+/* Table and Modal Steps Container */
+.solution-modal .modal-content #modal-steps-container,
+.solution-modal .modal-content .tables-wrapper {
     padding: 10px;
-    background-color: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 6px;
     margin-bottom: 15px;
     color: var(--text-secondary);
     font-size: 0.95rem;
     line-height: 1.6;
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: var(--primary) var(--background-element); /* For Firefox */
+}
+
+/* Modal Steps */
+.solution-modal .modal-content #modal-steps-container {
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow-y: auto; /* Enables scrolling */
+    max-height: auto; /* Limit height and enable scrolling */
+}
+
+/* Tables Container */
+.solution-modal .modal-content .tables-wrapper {
+    max-height: 200px; /* Set a height for the tables section */
+    overflow-y: auto; /* Enable scrolling */
 }
 
 /* Custom Scrollbar (Webkit Browsers) */
-.solution-modal .modal-content #modal-steps-container::-webkit-scrollbar {
+.solution-modal .modal-content #modal-steps-container::-webkit-scrollbar,
+.solution-modal .modal-content .tables-wrapper::-webkit-scrollbar {
     width: 8px;
 }
 
-.solution-modal .modal-content #modal-steps-container::-webkit-scrollbar-track {
+.solution-modal .modal-content #modal-steps-container::-webkit-scrollbar-track,
+.solution-modal .modal-content .tables-wrapper::-webkit-scrollbar-track {
     background: var(--background-element);
     border-radius: 6px;
 }
 
-.solution-modal .modal-content #modal-steps-container::-webkit-scrollbar-thumb {
+.solution-modal .modal-content #modal-steps-container::-webkit-scrollbar-thumb,
+.solution-modal .modal-content .tables-wrapper::-webkit-scrollbar-thumb {
     background: var(--primary);
     border-radius: 6px;
     border: 2px solid var(--background-element);
 }
 
-.solution-modal .modal-content #modal-steps-container::-webkit-scrollbar-thumb:hover {
+.solution-modal .modal-content #modal-steps-container::-webkit-scrollbar-thumb:hover,
+.solution-modal .modal-content .tables-wrapper::-webkit-scrollbar-thumb:hover {
     background: var(--primary-hover);
 }
 
@@ -434,6 +456,25 @@ body {
     background-color: var(--primary-hover);
 }
 
+/* Make the table and its content smaller */
+.solution-modal .modal-content table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.solution-modal .modal-content td {
+    border: 1px solid #ddd;
+    padding: 4px; /* Reduced padding */
+    font-size: 0.85rem; /* Reduced font size */
+}
+
+.solution-modal .modal-content th {
+    padding: 4px;
+    font-size: 0.85rem;
+    border: 1px solid #ddd;
+}
+
 /* Animations */
 @keyframes fadeIn {
     from {
@@ -443,9 +484,9 @@ body {
     to {
         opacity: 1;
         transform: scale(1);
- 
     }
 }
+
 
 
 /* COPY DESIGN */
