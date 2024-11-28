@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from cryptography.exceptions import InvalidKey, InvalidSignature
-from .utils import perform_caesarcipher_encryp_decrypt, perform_playfair_cipher, single_columnar_cipher, double_columnar_cipher, PerformAESCipher
+from .utils import perform_caesarcipher_encryp_decrypt, perform_playfair_cipher, single_columnar_cipher, double_columnar_cipher, PerformAESCipher, vigenere_encrypt, vigenere_decrypt
 
 # Create your views here.
 def landing(request):
@@ -34,6 +34,8 @@ def caesar_cipher(request):
         messages.error(request, 'Invalid key. Please provide a valid integer key.')
         return render(request, 'page.html')
     encrypted_text, steps = perform_caesarcipher_encryp_decrypt(text, key, mode)
+    
+    encrypted_text = encrypted_text.upper()
     cipher = 'caesar'
     return render(request, 'page.html', {'data': encrypted_text, 'key': key, 'text': text, 'steps': steps, 'mode': mode, 'cipher': cipher})
 
@@ -47,9 +49,14 @@ def vigenere_cipher(request):
     if not key or not text or not mode:
         messages.error(request, 'Please fill all inputs')
         return render(request, 'page.html')
-    messages.success(request, 'We are still working on this cipher')
+    if mode == 'encrypt':
+        data = vigenere_encrypt(text, key)
+    else:
+        data = vigenere_decrypt(text, key)
+        
+    data = data.upper()
     cipher = 'vigenere'
-    return render(request, 'page.html', {'key': key, 'text': text, 'cipher': cipher, 'mode': mode})
+    return render(request, 'page.html', {'data': data, 'key': key, 'text': text, 'cipher': cipher, 'mode': mode})
 
 
 # PLAYFAIR CIPHER
@@ -62,6 +69,8 @@ def playfair_cipher(request):
         return render(request, 'page.html')
     cipher = 'playfair'
     encrypted_text, steps = perform_playfair_cipher(key, text, mode)
+    
+    encrypted_text = encrypted_text.upper()
     return render(request, 'page.html', {'data': encrypted_text, 'key': key, 'text': text, 'steps': steps, 'mode': mode, 'cipher': cipher})
 
 
@@ -77,6 +86,9 @@ def singlecolumnar_cipher(request):
     steps = []
     grids = []
     encrypted_text, steps, grids, decrypted_str = single_columnar_cipher(text, key, mode)
+    
+    decrypted_str = decrypted_str.upper()
+    encrypted_text = encrypted_text.upper()
     return render(request, 'page.html', {'data': encrypted_text, 'data2': decrypted_str, 'key': key, 'text': text, 'steps': steps, 'grids': grids, 'mode': mode, 'cipher': cipher})
 
 
@@ -92,6 +104,9 @@ def doublecolumnar_cipher(request):
     cipher = 'double-columnar'
     encrypted_text, steps, steps2, grids, grids2, decrypted_str = double_columnar_cipher(text, key, key2, mode)
     print(f'{steps2} {grids2}')
+    
+    encrypted_text = encrypted_text.upper()
+    decrypted_str = decrypted_str.upper()
     return render(request, 'page.html', {'data': encrypted_text, 'data2': decrypted_str, 'key': key, 'key2': key2, 'text': text, 'steps': steps, 'steps2': steps2, 'grids': grids, 'grids2': grids2, 'mode': mode, 'cipher': cipher})
 
 
