@@ -131,6 +131,37 @@
         <div id="cipher-inputs" class="cipher-input">
             <div id="keys-container" class="keys-container" >
                 <input type="text" id="key-input" placeholder="Enter shift value (1-25)" {% if key %}value="{{ key }}"{% endif %} required>
+
+                <div class="select-container" id="aesSelect">
+                    <!-- Encryption Key Size -->
+                    <div class="select-wrapper">
+                        <label for="key-size">Encryption Key Size:</label>
+                        <select id="key-size" name="key_size">
+                            <option value="128">128 Bits</option>
+                            <option value="192">192 Bits</option>
+                            <option value="256">256 Bits</option>
+                        </select>
+                    </div>
+
+                    <!-- Encryption Mode -->
+                    <div class="select-wrapper">
+                        <label for="encryption-mode">Encryption Mode:</label>
+                        <select id="encryption-mode" name="encryption_mode">
+                            <option value="CBC">CBC</option>
+                            <option value="ECB">ECB</option>
+                        </select>
+                    </div>
+
+                    <!-- Output Format -->
+                    <div class="select-wrapper">
+                        <label for="output-format">Output Format:</label>
+                        <select id="output-format" name="output_format">
+                            <option value="Base64">Base64</option>
+                            <option value="HEX">HEX</option>
+                        </select>
+                    </div>
+                </div>
+                                
                 <input type="text" id="key-input-2" placeholder="Enter second key for Double Columnar Cipher" style="display: none;" {% if key %}value="{{ key2 }}"{% endif %}>
             </div>
             <textarea id="text-input" placeholder="Enter text to encrypt/decrypt" style="letter-spacing: 3px;" required>{% if key %}{{ text }}{% endif %}</textarea>
@@ -226,10 +257,12 @@
 
             const keyInput = document.getElementById('key-input');
             const keyInput2 = document.getElementById('key-input-2');
+            const aesSelect = document.getElementById('aesSelect');
 
             // Reset both inputs
             keyInput.style.display = 'block';
             keyInput2.style.display = 'none';
+            aesSelect.style.display = 'none';
 
             document.getElementById('key-input').value = '';
             document.getElementById('key-input-2').value = '';
@@ -255,12 +288,16 @@
                     break;
                 case 'double-columnar':
                     keyInput.placeholder = 'Enter first key for Double Columnar Cipher';
+                    keyInput.type = 'text';
                     keyInput2.style.display = 'block'; // Show second key input
                     keyInput2.placeholder = 'Enter second key for Double Columnar Cipher';
                     break;
                 case 'aes':
                     keyInput.placeholder = 'Enter AES key (128/192/256 bits)';
                     keyInput.type = 'text';
+                    keyInput2.style.display = 'block';
+                    keyInput2.placeholder = 'IV (optional)';
+                    aesSelect.style.display = 'flex';
                     break;
             }
         }

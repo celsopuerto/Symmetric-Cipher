@@ -641,3 +641,78 @@ html.dark-mode .copy-notification.error {
 .message.warning {
     background-color: #ff9800;  /* Orange */
 }
+
+
+
+/* AES ADDED INPUTS */
+.select-container {
+    display: none;
+    flex-direction: row;
+    gap: 20px; /* Adjusts spacing between select fields */
+    flex-wrap: wrap; /* Allows wrapping of select elements if the container is too small */
+    justify-content: center; /* Centers the content horizontally */
+    width: 100%; /* Ensures the container takes full width */
+    animation: fadeIn 3s forwards
+}
+
+.select-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1; /* Allows select wrapper to grow and fill available space */
+    min-width: 200px; /* Sets a minimum width for each select element */
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px; /* Adds space between label and select */
+    text-align: center; /* Centers label text */
+    color: var(--text-secondary-dark);
+}
+
+select {
+    width: 100%; /* Makes select take full width of its container */
+    max-width: 250px; /* Optional: limits the width of the select element */
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 4px;
+    color: var(--text-primary);
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    box-sizing: border-box; /* Includes padding and border in the element's width */
+}
+
+
+
+/* SCROLL DESIGN */
+::-webkit-scrollbar {
+    width: 6px; /* Adjusts the width of the scrollbar */
+    height: 6px; /* Adjusts the height of horizontal scrollbars */
+    transition: all 0.3s ease; /* Smooth transition for width change */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888; /* The color of the scrollbar thumb */
+    border-radius: 10px; /* Round the corners of the scrollbar thumb */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for color and transformation */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Changes the thumb color when hovered */
+    transform: scale(1.2); /* Slightly enlarges the thumb on hover */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Color of the track (background of the scrollbar) */
+    border-radius: 10px;
+    transition: background-color 0.3s ease; /* Smooth transition for track background */
+}
+
+::-webkit-scrollbar-track:hover {
+    background-color: #ddd; /* Lightens the track color when hovered */
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent; /* Removes the corner where two scrollbars meet */
+}
+
