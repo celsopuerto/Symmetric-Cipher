@@ -4,7 +4,12 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from cryptography.exceptions import InvalidKey, InvalidSignature
-from .utils import perform_caesarcipher_encryp_decrypt, perform_playfair_cipher, single_columnar_cipher, double_columnar_cipher, PerformAESCipher, vigenere_encrypt, vigenere_decrypt
+from .utils import perform_caesarcipher_encryp_decrypt, perform_playfair_cipher, single_columnar_cipher, double_columnar_cipher, vigenere_encrypt, vigenere_decrypt, encrypt_data, decrypt_data
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
+import os
+import base64
 
 # Create your views here.
 def landing(request):
@@ -87,8 +92,8 @@ def singlecolumnar_cipher(request):
     grids = []
     encrypted_text, steps, grids, decrypted_str = single_columnar_cipher(text, key, mode)
     
-    decrypted_str = decrypted_str.upper()
-    encrypted_text = encrypted_text.upper()
+    decrypted_str = decrypted_str
+    encrypted_text = encrypted_text
     return render(request, 'page.html', {'data': encrypted_text, 'data2': decrypted_str, 'key': key, 'text': text, 'steps': steps, 'grids': grids, 'mode': mode, 'cipher': cipher})
 
 
@@ -111,56 +116,19 @@ def doublecolumnar_cipher(request):
 
 
 # ADVANCE ENCRYPTION STANDARD
-# Secret key for AES (should be stored securely in environment variables)
-SECRET_KEY = b'myverysecretkey12'  # 16 bytes (128 bits)
-
-# Initialize the AES Cipher
-aes_cipher = PerformAESCipher(SECRET_KEY)
+AES_PASSWORD = "your_secure_password"
 
 def aes_cipher_view(request):
     # Get query parameters
-    text = request.GET.get('text', '')
-    data = request.GET.get('key', '')
+    plain_text = request.GET.get('text', '')
+    key = request.GET.get('key', '')
     mode = request.GET.get('mode', '').lower()  # Case-insensitive
-    if not data or not text or not mode:
+    if not key or not plain_text or not mode:
         messages.error(request, 'Please fill all inputs')
         return render(request, 'page.html')
     cipher = 'aes'
-    steps = ""  # Placeholder for any additional debugging or step information
+    text = encrypt_data(plain_text, AES_PASSWORD)
 
-    # Validate required inputs
-    if not mode or mode not in ['encrypt', 'decrypt']:
-        return JsonResponse({'error': 'Invalid mode. Use "encrypt" or "decrypt".'}, status=400)
-    if not data:
-        return JsonResponse({'error': 'No key provided for encryption/decryption.'}, status=400)
 
-    try:
-        if mode == 'encrypt':
-            # Encrypt the provided data
-            encrypted_data = aes_cipher.encrypt(data)
-            response_data = {
-                'data': encrypted_data,
-                'text': text,
-                'key': data,
-                'mode': mode,
-                'cipher': cipher,
-                'steps': steps
-            }
-        else:  # mode == 'decrypt'
-            # Decrypt the provided data
-            decrypted_data = aes_cipher.decrypt(data)
-            response_data = {
-                'data': decrypted_data,
-                'text': text,
-                'key': data,
-                'mode': mode,
-                'cipher': cipher,
-                'steps': steps
-            }
-        
-        # Render the response in a template
-        return render(request, 'page.html', response_data)
     
-    except (ValueError, InvalidKey, InvalidSignature) as e:
-        # Handle errors in encryption/decryption
-        return JsonResponse({'error': f'Error processing data: {str(e)}'}, status=500)
+    return render(request, 'page.html')

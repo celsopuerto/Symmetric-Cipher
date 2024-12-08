@@ -1,5 +1,16 @@
 import math
 from django.utils.html import escape
+
+#AES imports
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.padding import PKCS7
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+from cryptography.hazmat.primitives import hmac
+from base64 import b64encode, b64decode
+import os
 # CAESAR CIPHER
 
 def perform_caesarcipher_encryp_decrypt(text, key, mode):
@@ -375,75 +386,58 @@ def double_columnar_cipher(text, key, key2, mode):
         print(second_pass)
         return second_pass, steps_str, steps_str2, grids, grids2, decrypted_str
     
+
+# Advanced Encryption Standard
+# Constants
+KEY_SIZE = 32  # AES-256
+IV_SIZE = 16   # Initialization Vector size for AES
+SALT_SIZE = 16
+BLOCK_SIZE = 128  # PKCS7 Block size for padding
+ITERATIONS = 100_000  # Adjust for security
+
+def derive_key(password: str, salt: bytes) -> bytes:
+    """Derives a secure key using PBKDF2."""
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=KEY_SIZE,
+        salt=salt,
+        iterations=ITERATIONS,
+        backend=default_backend()
+    )
+    return kdf.derive(password.encode())
+
+def encrypt_data(plaintext: str, password: str) -> str:
+    """Encrypts the plaintext using AES and a derived key."""
+    salt = os.urandom(SALT_SIZE)
+    iv = os.urandom(IV_SIZE)
+    key = derive_key(password, salt)
     
-# ADVANCED ENCRYPTION STANDARD
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import padding
-import os
-from base64 import b64encode, b64decode
-from hashlib import sha256
+    # Pad plaintext
+    padder = PKCS7(BLOCK_SIZE).padder()
+    padded_data = padder.update(plaintext.encode()) + padder.finalize()
+    
+    # Encrypt
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    ciphertext = encryptor.update(padded_data) + encryptor.finalize()
+    
+    # Combine salt, IV, and ciphertext for storage
+    return b64encode(salt + iv + ciphertext).decode()
 
-class PerformAESCipher:
-    def __init__(self, key: bytes):
-        """
-        Initialize the AES cipher with a key. The key must be 16, 24, or 32 bytes long.
-        If the provided key is not of a valid size, it will be hashed to derive a 32-byte key.
-        """
-        if len(key) not in (16, 24, 32):
-            key = sha256(key).digest()  # Derive a 32-byte key from the given key
-        self.key = key
-        self.backend = default_backend()
-
-    def encrypt(self, data: str) -> str:
-        """
-        Encrypts the given string data using AES encryption in CBC mode.
-        Returns a base64-encoded string of the encrypted data (IV + ciphertext).
-        """
-        data_bytes = data.encode('utf-8')
-
-        # Pad the data to make it a multiple of the block size (16 bytes for AES)
-        padder = padding.PKCS7(128).padder()
-        padded_data = padder.update(data_bytes) + padder.finalize()
-
-        # Generate a random IV (Initialization Vector)
-        iv = os.urandom(16)
-
-        # Create a Cipher object with the key and IV
-        cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=self.backend)
-        encryptor = cipher.encryptor()
-
-        # Encrypt the padded data
-        encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
-
-        # Return the IV and encrypted data as a base64-encoded string
-        return b64encode(iv + encrypted_data).decode('utf-8')
-
-    def decrypt(self, encrypted_data: str) -> str:
-        """
-        Decrypts a base64-encoded string of encrypted data (IV + ciphertext).
-        Returns the original plaintext string.
-        """
-        try:
-            encrypted_data_bytes = b64decode(encrypted_data)
-
-            # Extract the IV and encrypted data
-            iv = encrypted_data_bytes[:16]
-            ciphertext = encrypted_data_bytes[16:]
-
-            # Create a Cipher object with the key and IV
-            cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=self.backend)
-            decryptor = cipher.decryptor()
-
-            # Decrypt the data
-            decrypted_data = decryptor.update(ciphertext) + decryptor.finalize()
-
-            # Remove the padding from the decrypted data
-            unpadder = padding.PKCS7(128).unpadder()
-            data_bytes = unpadder.update(decrypted_data) + unpadder.finalize()
-
-            # Return the original plaintext string
-            return data_bytes.decode('utf-8')
-        except Exception as e:
-            # Raise a specific error for debugging purposes
-            raise ValueError(f"Decryption failed: {str(e)}")
+def decrypt_data(encrypted_data: str, password: str) -> str:
+    """Decrypts the ciphertext using AES and a derived key."""
+    encrypted_data = b64decode(encrypted_data)
+    salt = encrypted_data[:SALT_SIZE]
+    iv = encrypted_data[SALT_SIZE:SALT_SIZE + IV_SIZE]
+    ciphertext = encrypted_data[SALT_SIZE + IV_SIZE:]
+    key = derive_key(password, salt)
+    
+    # Decrypt
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    decryptor = cipher.decryptor()
+    padded_data = decryptor.update(ciphertext) + decryptor.finalize()
+    
+    # Unpad plaintext
+    unpadder = PKCS7(BLOCK_SIZE).unpadder()
+    plaintext = unpadder.update(padded_data) + unpadder.finalize()
+    return plaintext.decode()
