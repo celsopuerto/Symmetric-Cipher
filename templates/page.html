@@ -137,29 +137,29 @@
                     <div class="select-wrapper">
                         <label for="key-size">Encryption Key Size:</label>
                         <select id="key-size" name="key_size">
-                            <option value="128">128 Bits</option>
-                            <option value="192">192 Bits</option>
-                            <option value="256">256 Bits</option>
+                            <option value="128" {% if key_size == 128 %}selected{% endif %}>128 Bits</option>
+                            <option value="192" {% if key_size == 192 %}selected{% endif %}>192 Bits</option>
+                            <option value="256" {% if key_size == 256 %}selected{% endif %}>256 Bits</option>
                         </select>
                     </div>
 
                     <!-- Encryption Mode -->
-                    <div class="select-wrapper">
+                    {% comment %} <div class="select-wrapper">
                         <label for="encryption-mode">Encryption Mode:</label>
                         <select id="encryption-mode" name="encryption_mode">
                             <option value="CBC">CBC</option>
                             <option value="ECB">ECB</option>
                         </select>
-                    </div>
+                    </div> {% endcomment %}
 
                     <!-- Output Format -->
-                    <div class="select-wrapper">
+                    {% comment %} <div class="select-wrapper">
                         <label for="output-format">Output Format:</label>
                         <select id="output-format" name="output_format">
                             <option value="Base64">Base64</option>
                             <option value="HEX">HEX</option>
                         </select>
-                    </div>
+                    </div> {% endcomment %}
                 </div>
                                 
                 <input type="text" id="key-input-2" placeholder="Enter second key for Double Columnar Cipher" style="display: none;" {% if key %}value="{{ key2 }}"{% endif %}>
@@ -174,7 +174,7 @@
 
         <div class="cipher-output">
             <button class="show-solution-btn" onclick="triggerModal()">View Solution</button>
-        
+            
             <p id="result-output" style="letter-spacing: 3px;">
                 {% if data2 %}
                     {{ data2 }}
@@ -242,6 +242,11 @@
             {% if cipher == 'double-columnar' %}
                 const keyInput2 = document.getElementById('key-input-2');
                 keyInput2.style.display = 'block';
+            {% elif cipher == 'aes' %}
+                const keyInput2 = document.getElementById('key-input-2');
+                keyInput2.style.display = 'block';
+                keyInput2.placeholder = 'IV (optional)';
+                aesSelect.style.display = 'flex';
             {% endif %}
         {% else %}
             currentCipher = 'caesar'; 
@@ -293,7 +298,7 @@
                     keyInput2.placeholder = 'Enter second key for Double Columnar Cipher';
                     break;
                 case 'aes':
-                    keyInput.placeholder = 'Enter AES key (128/192/256 bits)';
+                    keyInput.placeholder = 'Enter AES key';
                     keyInput.type = 'text';
                     keyInput2.style.display = 'block';
                     keyInput2.placeholder = 'IV (optional)';
@@ -304,12 +309,17 @@
 
         function encrypt() {
             const resultOutput = document.getElementById('result-output');
-            let key, key2, text;
+            let key, key2, text, iv;
 
             // Get inputs based on current cipher
             if (currentCipher === 'double-columnar') {
                 key = document.getElementById('key-input').value;
                 key2 = document.getElementById('key-input-2').value;
+                text = document.getElementById('text-input').value;
+            } else if (currentCipher === 'aes') {
+                key = document.getElementById('key-input').value;
+                key_size = document.getElementById('key-size').value;
+                iv = document.getElementById('key-input-2').value;
                 text = document.getElementById('text-input').value;
             } else {
                 key = document.getElementById('key-input').value;
@@ -334,21 +344,26 @@
                     location.href = `{% url 'cipher:double-columnar_cipher' %}?key=${key}&key2=${key2}&text=${text}&mode=encrypt`;
                     break;
                 case 'aes':
-                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&mode=encrypt`;
+                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&key_size=${key_size}&iv=${iv}&mode=encrypt`;
                     break;
             }
         }
 
         function decrypt() {
             const resultOutput = document.getElementById('result-output');
-            let key, key2, text;
+            let key, key2, text, key_size;
 
             // Get inputs based on current cipher
             if (currentCipher === 'double-columnar') {
                 key = document.getElementById('key-input').value;
                 key2 = document.getElementById('key-input-2').value;
                 text = document.getElementById('text-input').value;
-            } else {
+            } else if (currentCipher === 'aes') {
+                key = document.getElementById('key-input').value;
+                key_size = document.getElementById('key-size').value;
+                iv = document.getElementById('key-input-2').value;
+                text = document.getElementById('text-input').value;
+             } else {
                 key = document.getElementById('key-input').value;
                 text = document.getElementById('text-input').value;
             }
@@ -371,7 +386,7 @@
                     location.href = `{% url 'cipher:double-columnar_cipher' %}?key=${key}&key2=${key2}&text=${text}&mode=decrypt`;
                     break;
                 case 'aes':
-                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&mode=decrypt`;
+                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&key_size=${key_size}&iv=${iv}&mode=decrypt`;
                     break;
             }
         }

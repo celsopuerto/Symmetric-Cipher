@@ -289,6 +289,7 @@ body {
 
 .cipher-output h3, .cipher-output p {
     margin-top: -5px;
+    word-wrap: break-word;
 }
 
 .cipher-output {
@@ -300,6 +301,7 @@ body {
     position: relative; /* Needed for positioning child elements */
     min-height: 100px;
     padding-top: 40px; /* Add padding to prevent overlapping with the button */
+    text-wrap: wrap;
 }
 
 .cipher-output .show-solution-btn {
@@ -672,7 +674,7 @@ label {
 
 select {
     width: 100%; /* Makes select take full width of its container */
-    max-width: 250px; /* Optional: limits the width of the select element */
+    max-width: 100%; /* Optional: limits the width of the select element */
     padding: 8px;
     font-size: 14px;
     border-radius: 4px;
@@ -715,4 +717,3 @@ select {
 ::-webkit-scrollbar-corner {
     background: transparent; /* Removes the corner where two scrollbars meet */
 }
-
