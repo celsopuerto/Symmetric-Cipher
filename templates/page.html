@@ -144,22 +144,37 @@
                     </div>
 
                     <!-- Encryption Mode -->
-                    {% comment %} <div class="select-wrapper">
+                    <div class="select-wrapper">
                         <label for="encryption-mode">Encryption Mode:</label>
                         <select id="encryption-mode" name="encryption_mode">
-                            <option value="CBC">CBC</option>
-                            <option value="ECB">ECB</option>
+                            <option value="CBC" {% if encryption_mode == "CBC" %}selected{% endif %}>CBC</option>
+                            <option value="ECB" {% if encryption_mode == "ECB" %}selected{% endif %}>ECB</option>
+                            <option value="CTR" {% if encryption_mode == "CTR" %}selected{% endif %}>CTR</option>
+                            <option value="GCM" {% if encryption_mode == "GCM" %}selected{% endif %}>GCM</option>
                         </select>
-                    </div> {% endcomment %}
+                    </div>
+                    
+                    <div class="select-wrapper">
+                        <label for="padding">Select Padding:</label>
+                        <select id="padding" name="padding">
+                            <option value="NoPadding" {% if padding == "nopadding" %}selected{% endif %}>No Padding</option>
+                            <option value="PKCS5Padding" {% if padding != "nopadding" %}selected{% endif %}>PKCS5Padding</option>
+                        </select>
+                    </div>
 
                     <!-- Output Format -->
-                    {% comment %} <div class="select-wrapper">
+                    <div class="select-wrapper">
                         <label for="output-format">Output Format:</label>
                         <select id="output-format" name="output_format">
-                            <option value="Base64">Base64</option>
-                            <option value="HEX">HEX</option>
+                            <option value="Base64" {% if output_format == "base64" %}selected{% endif %}>Base64</option>
+                            <option value="HEX" {% if output_format == "hex" %}selected{% endif %}>HEX</option>
                         </select>
-                    </div> {% endcomment %}
+                    </div>
+
+                    <div class="select-wrapper">
+                        <label for="vector">Initialization Vector:</label>
+                        <input type="text" id="vector" placeholder="IV (optional)" value="{{ vector }}" name="vector"/>
+                    </div>
                 </div>
                                 
                 <input type="text" id="key-input-2" placeholder="Enter second key for Double Columnar Cipher" style="display: none;" {% if key %}value="{{ key2 }}"{% endif %}>
@@ -263,11 +278,13 @@
             const keyInput = document.getElementById('key-input');
             const keyInput2 = document.getElementById('key-input-2');
             const aesSelect = document.getElementById('aesSelect');
+            const vector = document.getElementById('vector');
 
             // Reset both inputs
             keyInput.style.display = 'block';
             keyInput2.style.display = 'none';
             aesSelect.style.display = 'none';
+            vector.style.display = 'none';
 
             document.getElementById('key-input').value = '';
             document.getElementById('key-input-2').value = '';
@@ -298,11 +315,12 @@
                     keyInput2.placeholder = 'Enter second key for Double Columnar Cipher';
                     break;
                 case 'aes':
-                    keyInput.placeholder = 'Enter AES key';
+                    keyInput.placeholder = 'Enter Secret Key';
                     keyInput.type = 'text';
                     // keyInput2.style.display = 'block';
                     keyInput2.placeholder = 'IV (optional)';
                     aesSelect.style.display = 'flex';
+                    vector.style.display = 'block'; 
                     break;
             }
         }
@@ -319,8 +337,11 @@
             } else if (currentCipher === 'aes') {
                 key = document.getElementById('key-input').value;
                 key_size = document.getElementById('key-size').value;
-                iv = document.getElementById('key-input-2').value;
+                vector = document.getElementById('vector').value;
                 text = document.getElementById('text-input').value;
+                output = document.getElementById('output-format').value;
+                padding = document.getElementById('padding').value;
+                encryption_mode = document.getElementById('encryption-mode').value;
             } else {
                 key = document.getElementById('key-input').value;
                 text = document.getElementById('text-input').value;
@@ -344,7 +365,7 @@
                     location.href = `{% url 'cipher:double-columnar_cipher' %}?key=${key}&key2=${key2}&text=${text}&mode=encrypt`;
                     break;
                 case 'aes':
-                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&key_size=${key_size}&iv=${iv}&mode=encrypt`;
+                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&key_size=${key_size}&mode=encrypt&output_format=${output}&padding=${padding}&encryption_mode=${encryption_mode}&vector=${vector}`;
                     break;
             }
         }
@@ -361,8 +382,11 @@
             } else if (currentCipher === 'aes') {
                 key = document.getElementById('key-input').value;
                 key_size = document.getElementById('key-size').value;
-                iv = document.getElementById('key-input-2').value;
+                vector = document.getElementById('vector').value;
                 text = document.getElementById('text-input').value;
+                output = document.getElementById('output-format').value;
+                padding = document.getElementById('padding').value;
+                encryption_mode = document.getElementById('encryption-mode').value;
              } else {
                 key = document.getElementById('key-input').value;
                 text = document.getElementById('text-input').value;
@@ -386,7 +410,7 @@
                     location.href = `{% url 'cipher:double-columnar_cipher' %}?key=${key}&key2=${key2}&text=${text}&mode=decrypt`;
                     break;
                 case 'aes':
-                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&key_size=${key_size}&iv=${iv}&mode=decrypt`;
+                    location.href = `{% url 'cipher:aes_cipher' %}?key=${key}&text=${text}&key_size=${key_size}&mode=decrypt&output_format=${output}&padding=${padding}&encryption_mode=${encryption_mode}&vector=${vector}`;
                     break;
             }
         }

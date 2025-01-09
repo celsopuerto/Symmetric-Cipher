@@ -11,7 +11,7 @@ from .utils import (
     double_columnar_cipher,
     vigenere_encrypt,
     vigenere_decrypt,
-    encrypt_data,
+    encrypt_or_decrypt,
 )
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
@@ -75,16 +75,16 @@ def vigenere_cipher(request):
         messages.error(request, "Please fill all inputs")
         return render(request, "page.html")
     if mode == "encrypt":
-        data = vigenere_encrypt(text, key)
+        data, steps = vigenere_encrypt(text, key)
     else:
-        data = vigenere_decrypt(text, key)
+        data, steps = vigenere_decrypt(text, key)
 
     data = data.upper()
     cipher = "vigenere"
     return render(
         request,
         "page.html",
-        {"data": data, "key": key, "text": text, "cipher": cipher, "mode": mode},
+        {"data": data, "key": key, "text": text, "cipher": cipher, "mode": mode, "steps": steps},
     )
 
 
@@ -185,12 +185,16 @@ def doublecolumnar_cipher(request):
 
 # ADVANCE ENCRYPTION STANDARD
 def aes_cipher_view(request):
-    # Get query parameters
     plaintext = request.GET.get("text", "")
     key = request.GET.get("key", "")
+    encryption_mode = request.GET.get("encryption_mode", "")
     key_size = request.GET.get("key_size", "")
-    iv = request.GET.get("iv", "")
-    mode = request.GET.get("mode", "").lower()  # Case-insensitive
+    vector = request.GET.get("vector", "")
+    padding = request.GET.get("padding", "").lower()  # Case-insensitive
+    output_format = request.GET.get("output_format", "").lower()  # Base64 or Hex
+    mode = request.GET.get("mode", "").lower()  # Encrypt or Decrypt
+
+    print(f"{plaintext} {key} {encryption_mode} {key_size} {vector} {padding} {output_format} {mode}")
 
     if not key or not plaintext or not mode or not key_size:
         messages.error(request, "Please fill all inputs")
@@ -199,12 +203,19 @@ def aes_cipher_view(request):
     try:
         key_size = int(key_size)
         cipher = "aes"
-        context = encrypt_data(plaintext, key, key_size, iv, mode)
+        context = encrypt_or_decrypt(
+            plaintext, key, key_size, vector, mode, padding, output_format
+        )
         data = context.get("data", "")
         steps = format_logs_to_html(context["process_log"])
+        print(f"{data} {steps}")
     except Exception as e:
         data = ""
         steps = [f"Error: {str(e)}"]
+        print(f"{data} {steps}")
+
+    print(f"{data}")
+
     return render(
         request,
         "page.html",
@@ -212,11 +223,15 @@ def aes_cipher_view(request):
             "cipher": cipher,
             "mode": mode,
             "text": plaintext,
+            "padding": padding,
+            "output_format": output_format,
+            "encryption_mode": encryption_mode,
             "key": key,
-            "key2": iv,
+            "key2": vector,
             "key_size": key_size,
             "data": data,
             "steps": steps,
+            "vector": vector,
         },
     )
 

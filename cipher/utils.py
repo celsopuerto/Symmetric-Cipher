@@ -15,9 +15,8 @@ from Crypto.Util.Padding import pad, unpad
 import base64
 import os
 
+
 # CAESAR CIPHER
-
-
 def perform_caesarcipher_encryp_decrypt(text, key, mode):
     encrypted_text = ""
     steps_html = ""  # To store the steps of encryption in HTML format
@@ -78,50 +77,63 @@ def perform_caesarcipher_encryp_decrypt(text, key, mode):
 
         return decrypted_text, steps_html
 
-
 # VIGENERE CIPHER
 def vigenere_encrypt(plaintext, key):
+    steps = []  # Collecting each step for display
     ciphertext = []
     key = key.lower()  # make sure the key is in lowercase
     key_length = len(key)
     key_index = 0
 
-    for char in plaintext:
+    steps.append(f"<br/>Starting encryption with key: {key}")
+
+    for idx, char in enumerate(plaintext):
         if char.isalpha():
             shift = ord(key[key_index % key_length]) - ord("a")
+            steps.append(f"<br/>Step {idx + 1}: Encrypting character '{char}' using key character '{key[key_index % key_length]}' (shift = {shift})")
             if char.islower():
                 encrypted_char = chr((ord(char) - ord("a") + shift) % 26 + ord("a"))
             else:
                 encrypted_char = chr((ord(char) - ord("A") + shift) % 26 + ord("A"))
+            steps.append(f"<br/>Step {idx + 1}: Encrypted character '{char}' -> '{encrypted_char}'")
             ciphertext.append(encrypted_char)
             key_index += 1
         else:
             # Non-alphabetic characters are not encrypted
+            steps.append(f"<br/>Step {idx + 1}: Non-alphabetic character '{char}' added to ciphertext without change.")
             ciphertext.append(char)
 
-    return "".join(ciphertext)
-
+    steps.append(f"<br/>Encryption complete. Ciphertext: {''.join(ciphertext)}")
+    steps_str = "".join(steps)
+    return "".join(ciphertext), steps_str
 
 def vigenere_decrypt(ciphertext, key):
+    steps = []  # Collecting each step for display
     plaintext = []
     key = key.lower()
     key_length = len(key)
     key_index = 0
 
-    for char in ciphertext:
+    steps.append(f"<br/>Starting decryption with key: {key}")
+
+    for idx, char in enumerate(ciphertext):
         if char.isalpha():
             shift = ord(key[key_index % key_length]) - ord("a")
+            steps.append(f"<br/>Step {idx + 1}: Decrypting character '{char}' using key character '{key[key_index % key_length]}' (shift = {shift})")
             if char.islower():
                 decrypted_char = chr((ord(char) - ord("a") - shift) % 26 + ord("a"))
             else:
                 decrypted_char = chr((ord(char) - ord("A") - shift) % 26 + ord("A"))
+            steps.append(f"<br/>Step {idx + 1}: Decrypted character '{char}' -> '{decrypted_char}'")
             plaintext.append(decrypted_char)
             key_index += 1
         else:
             plaintext.append(char)
+            steps.append(f"<br/>Step {idx + 1}: Non-alphabetic character '{char}' added to plaintext without change.")
 
-    return "".join(plaintext)
-
+    steps.append(f"<br/>Decryption complete. Plaintext: {''.join(plaintext)}")
+    steps_str = "".join(steps)
+    return "".join(plaintext), steps_str
 
 # PLAYFAIR CIPHER
 def generate_matrix(key):
@@ -430,129 +442,116 @@ def double_columnar_cipher(text, key, key2, mode):
 
 
 # Advanced Encryption Standard
-def encrypt_data(plaintext, key, key_size, iv, mode):
+def encrypt_or_decrypt(plaintext, key, key_size, iv, mode, padding, output_format):
     context = {"process_log": []}
 
     try:
         if mode == "encrypt":
-            encrypted_data, log = aes_encrypt(plaintext, key, key_size, iv)
-            if encrypted_data:
-                context["data"] = encrypted_data
-            context["process_log"] = log
+            result, log = aes_encrypt(plaintext, key, key_size, iv, padding, output_format)
+            context["data"] = result
         elif mode == "decrypt":
-            decrypted_data, log = aes_decrypt(plaintext, key, key_size, iv)
-            if decrypted_data:
-                context["data"] = decrypted_data
-            context["process_log"] = log
+            result, log = aes_decrypt(plaintext, key, key_size, iv, padding, output_format)
+            context["data"] = result
         else:
             raise ValueError("Invalid mode. Choose 'encrypt' or 'decrypt'.")
+        context["process_log"] = log
     except Exception as e:
         context["process_log"].append(f"Error: {str(e)}")
 
     return context
 
 
-# Validate or Generate IV
-def validate_or_generate_iv(iv, for_encryption=False):
-    if not iv and for_encryption:
-        return os.urandom(16)
-    try:
-        iv_bytes = b64decode(iv)
-        if len(iv_bytes) != 16:
-            raise ValueError("IV must be 16 bytes long after decoding.")
-        return iv_bytes
-    except Exception as e:
-        raise ValueError(f"Invalid IV: {str(e)}")
-
-
-def validate_base64(input_string):
-    try:
-        # Ensure padding for Base64
-        padded_input = input_string + "=" * (-len(input_string) % 4)
-        base64.b64decode(padded_input)
-        return padded_input
-    except Exception as e:
-        print(f"Invalid Base64 string: {str(e)}")
-        return None
-
-
-# Encryption Function
-def aes_encrypt(plaintext, key, key_size, iv):
+# Update padding handling in encryption and decryption functions
+def aes_encrypt(plaintext, key, key_size, iv, padding, output_format):
     log = []
     try:
-        # Validate key size
+        # Adjust key size
         if key_size not in [128, 192, 256]:
             raise ValueError("Invalid key size. Choose 128, 192, or 256 bits.")
-
-        # Prepare key
         key_bytes = key.encode("utf-8")
         key_bytes = key_bytes[: key_size // 8].ljust(key_size // 8, b"\0")
         log.append(f"Key adjusted to {key_size} bits: {key_bytes}")
 
-        # Generate IV if not provided
+        # Generate or validate IV
         iv_bytes = validate_or_generate_iv(iv, for_encryption=True)
         log.append(f"IV (16 bytes): {iv_bytes}")
 
         # Prepare plaintext
         plaintext_bytes = plaintext.encode("utf-8")
+        if padding.lower() != "nopadding":
+            plaintext_bytes = pad(plaintext_bytes, AES.block_size, style='pkcs7')
+        elif len(plaintext_bytes) % AES.block_size != 0:
+            raise ValueError("Plaintext must be a multiple of 16 bytes for NoPadding.")
         log.append(f"Plaintext bytes: {plaintext_bytes}")
 
-        # Apply padding
-        padded_data = pad(plaintext_bytes, AES.block_size)
-        log.append(f"Padded plaintext: {padded_data}")
+        # Encrypt
+        cipher = AES.new(key_bytes, AES.MODE_CBC, iv_bytes)
+        ciphertext_bytes = cipher.encrypt(plaintext_bytes)
+        combined = iv_bytes + ciphertext_bytes
+        log.append(f"Ciphertext bytes: {ciphertext_bytes}")
 
-        # Initialize AES cipher
-        cipher = AES.new(key_bytes, AES.MODE_CBC, iv=iv_bytes)
-
-        # Encrypt and encode
-        ciphertext = cipher.encrypt(padded_data)
-        combined = iv_bytes + ciphertext
-        encrypted_data = b64encode(combined).decode("utf-8")
-        log.append(f"Encrypted Base64 ciphertext (IV + Ciphertext): {encrypted_data}")
-
-        return encrypted_data, log
+        # Output format
+        if output_format.lower() == "base64":
+            return b64encode(combined).decode("utf-8"), log
+        elif output_format.lower() == "hex":
+            return combined.hex(), log
+        else:
+            raise ValueError("Unsupported output format.")
     except Exception as e:
         log.append(f"Error during encryption: {str(e)}")
         return None, log
 
-
-# Decryption Function
-def aes_decrypt(ciphertext, key, key_size, iv):
+def aes_decrypt(ciphertext, key, key_size, iv, padding, output_format):
     log = []
     try:
-        # Validate key size
+        # Adjust key size
         if key_size not in [128, 192, 256]:
             raise ValueError("Invalid key size. Choose 128, 192, or 256 bits.")
-
-        # Prepare key
         key_bytes = key.encode("utf-8")
         key_bytes = key_bytes[: key_size // 8].ljust(key_size // 8, b"\0")
         log.append(f"Key adjusted to {key_size} bits: {key_bytes}")
+        print(output_format)
+        # Decode ciphertext based on output format
+        if output_format.lower() == "base64":
+            combined = b64decode(ciphertext)
+        elif output_format.lower() == "hex":
+            combined = bytes.fromhex(ciphertext)
+        else:
+            raise ValueError("Unsupported output format. Choose 'base64' or 'hex'.")
+        log.append(f"Decoded ciphertext: {combined}")
 
-        # Decode Base64 ciphertext
-        padded_ciphertext = ciphertext + "=" * (-len(ciphertext) % 4)
-        combined = b64decode(padded_ciphertext)
-        log.append(f"Base64-decoded combined data (length {len(combined)}): {combined}")
-
-        if len(combined) < 16:
-            raise ValueError("Combined data too short to contain an IV and ciphertext.")
-
-        iv_bytes = combined[:16]  # Extract IV
-        ciphertext_bytes = combined[16:]  # Extract Ciphertext
+        # Extract IV and ciphertext
+        iv_bytes = combined[:16]
+        ciphertext_bytes = combined[16:]
         log.append(f"Extracted IV (16 bytes): {iv_bytes}")
         log.append(f"Ciphertext bytes: {ciphertext_bytes}")
 
-        # Initialize AES cipher
+        # Decrypt
         cipher = AES.new(key_bytes, AES.MODE_CBC, iv=iv_bytes)
-
-        # Decrypt and remove padding
         decrypted_padded = cipher.decrypt(ciphertext_bytes)
         log.append(f"Decrypted padded plaintext: {decrypted_padded}")
 
-        plaintext = unpad(decrypted_padded, AES.block_size).decode("utf-8")
+        # Remove padding if applicable
+        if padding.lower() != "nopadding":
+            decrypted_padded = unpad(decrypted_padded, AES.block_size, style='pkcs7')
+        plaintext = decrypted_padded.decode("utf-8")
         log.append(f"Decrypted plaintext: {plaintext}")
 
         return plaintext, log
     except Exception as e:
         log.append(f"Error during decryption: {str(e)}")
         return None, log
+
+def validate_or_generate_iv(iv, for_encryption=False):
+    try:
+        if iv:
+            iv_bytes = b64decode(iv)
+            if len(iv_bytes) != 16:
+                raise ValueError("IV must be 16 bytes.")
+            return iv_bytes
+        elif for_encryption:
+            return os.urandom(16)
+        else:
+            raise ValueError("Invalid IV provided.")
+    except Exception as e:
+        raise ValueError(f"Invalid IV: {str(e)}")
