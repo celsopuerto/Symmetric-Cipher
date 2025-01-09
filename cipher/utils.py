@@ -410,6 +410,10 @@ def perform_double_columnar_cipher(text, keyword, mode):
 
 def double_columnar_cipher(text, key, key2, mode):
     steps = []  # Collect steps for display
+
+    max_key_length = max(len(key), len(key2))
+    key = normalize_key_length(key.upper(), max_key_length)
+    key2 = normalize_key_length(key2.upper(), max_key_length)
     if mode == "encrypt":
 
         first_pass, steps_str, grids, decrypted_str = perform_double_columnar_cipher(
@@ -439,6 +443,14 @@ def double_columnar_cipher(text, key, key2, mode):
         print(first_pass)
         print(second_pass)
         return second_pass, steps_str, steps_str2, grids, grids2, decrypted_str
+
+def normalize_key_length(key, target_length):
+    """
+    Normalize the length of the key by repeating its characters until it matches the target length.
+    """
+    while len(key) < target_length:
+        key += key  # Repeat the key
+    return key[:target_length]  # Trim to the exact target length
 
 
 # Advanced Encryption Standard
