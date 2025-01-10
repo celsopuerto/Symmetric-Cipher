@@ -193,6 +193,7 @@ def aes_cipher_view(request):
     padding = request.GET.get("padding", "").lower()  # Case-insensitive
     output_format = request.GET.get("output_format", "").lower()  # Base64 or Hex
     mode = request.GET.get("mode", "").lower()  # Encrypt or Decrypt
+    iv = ""
 
     print(f"{plaintext} {key} {encryption_mode} {key_size} {vector} {padding} {output_format} {mode}")
 
@@ -201,10 +202,12 @@ def aes_cipher_view(request):
         return render(request, "page.html")
 
     try:
+        if padding is not "pkcs5padding":
+            padding = "pkcs5padding"
         key_size = int(key_size)
         cipher = "aes"
         context = encrypt_or_decrypt(
-            plaintext, key, key_size, vector, mode, padding, output_format
+            plaintext, key, key_size, iv, mode, padding, output_format
         )
         data = context.get("data", "")
         steps = format_logs_to_html(context["process_log"])
